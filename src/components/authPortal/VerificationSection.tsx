@@ -152,8 +152,7 @@ const VerificationSection = ({
                 {/* form-wrap */}
                 <form className="flex flex-col items-stretch gap-4 ">
                     <div className="dark:text-d-700-text">
-                        We've sent you a verification code on your email. To
-                        proceed with the registration enter the code bellow:
+                        {"We've sent you a verification code on your email. To proceed with the registration enter the code bellow:"}
                     </div>
                     <PinInput
                         onPinStoring={handlePinStoring}
@@ -161,7 +160,7 @@ const VerificationSection = ({
                         onEnter={handleEnter}
                     />
                     <div className="flex flex-row content-center justify-start gap-3">
-                        <div className="form-text">Didn't recieve a code?</div>
+                        <div className="form-text">{"Didn't recieve a code?"}</div>
                         <LinkMUI
                             className="font-medium w-min whitespace-nowrap dark:font-semibold dark:text-d-700-text"
                             color="secondary"

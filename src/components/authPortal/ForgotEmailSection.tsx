@@ -77,8 +77,8 @@ const ForgotEmailSection = ({ onSubmit }: { onSubmit: () => void }) => {
                 {/* form-wrap */}
                 <form className="flex flex-col items-stretch gap-4 ">
                     <div className="dark:text-d-700-text">
-                        Forgot your password? No worries! <br /> Enter the email
-                        you've registered with bellow:
+                        Forgot your password? No worries! <br /> 
+                        {"Enter the email you've registered with bellow:"}
                     </div>
 
                     <EmailField

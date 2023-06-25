@@ -95,10 +95,10 @@ const SuccessSection = () => {
                         </Typography>
                     </div>
                     <p className="form-text text-lg text-left">
-                        You've successfully registered! <br /> Enjoy your stay!
+                        {"You've successfully registered!"} <br /> Enjoy your stay!
                     </p>
                     <p className="form-text text-lg mt-3">
-                        You'll be redirected to the app shortly.
+                        {"You'll be redirected to the app shortly."}
                     </p>
                 </div>
             </div>
