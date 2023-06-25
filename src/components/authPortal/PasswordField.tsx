@@ -272,7 +272,8 @@ export const PasswordFieldPlain = ({
             <FormHelperText>
                 {noPassMatch ? (
                     <span>
-                        - Passwords don't match<br></br>
+                        {"- Passwords don't match"}
+                        <br></br>
                     </span>
                 ) : (
                     ""
