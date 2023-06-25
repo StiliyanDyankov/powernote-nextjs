@@ -1,9 +1,118 @@
-const ForgottenPasswordPage = () => {
+"use client"
+
+import React, { useEffect } from "react";
+import AuthPageWrapper from "@/components/authPortal/AuthPageWrapper";
+import { useSelector } from "react-redux";
+import { RootState } from "../utils/store";
+import { useDispatch } from "react-redux";
+import { Step, StepLabel, Stepper, Typography } from "@mui/material";
+import VerificationSection from "@/components/authPortal/VerificationSection";
+import {
+    goNextStep,
+    goPrevStep,
+    resetSteps,
+} from "../utils/storeSlices/forgotSlice";
+import { CheckCircle } from "@mui/icons-material";
+import ForgotEmailSection from "@/components/authPortal/ForgotEmailSection";
+import ResetPasswordSection from "@/components/authPortal/ResetPasswordSection";
+
+const steps = ["Enter email", "Verify yourself", "Reset password"];
+
+const ForgotPage = () => {
+    const dispatch = useDispatch();
+    const storeForgotStep = useSelector(
+        (state: RootState) => state.forgot.currentStep
+    );
+    // const storeRegisterStep = 2;
+
+    // dispatch(resetSteps());
+
+    const handleNext = () => {
+        dispatch(goNextStep());
+    };
+
+    const handlePrev = () => {
+        dispatch(goPrevStep());
+    };
+
     return (
-        <>
-            <h1>Forgotten Password Page</h1>
-        </>
+        <AuthPageWrapper>
+            {/* content-box */}
+            <div className="flex flex-col min-w-0 gap-2">
+                <Stepper activeStep={storeForgotStep} alternativeLabel>
+                    {steps.map((s) => (
+                        <Step key={s}>
+                            <StepLabel className="font-semibold">{s}</StepLabel>
+                        </Step>
+                    ))}
+                </Stepper>
+                {storeForgotStep === 0 ? (
+                    <ForgotEmailSection onSubmit={handleNext} />
+                ) : (
+                    ""
+                )}
+                {storeForgotStep === 1 ? (
+                    <VerificationSection
+                        onNext={handleNext}
+                        onBack={handlePrev}
+                        type="forgot"
+                    />
+                ) : (
+                    ""
+                )}
+                {storeForgotStep === 2 ? (
+                    <ResetPasswordSection onSubmit={handleNext} />
+                ) : (
+                    ""
+                )}
+                {storeForgotStep === 3 ? <SuccessSection /> : ""}
+            </div>
+        </AuthPageWrapper>
     );
 };
 
-export default ForgottenPasswordPage;
+export default ForgotPage;
+
+import { useTransitionRef } from "../utils/hooks";
+import Router from "next/router";
+
+const SuccessSection = () => {
+    const dispatch = useDispatch();
+
+    const ref = useTransitionRef();
+
+    useEffect(() => {
+        const wait = async () => {
+            await new Promise((r) => setTimeout(r, 3000));
+            // navigate("/app", { replace: true });
+            Router.push("/app")
+            dispatch(resetSteps());
+        };
+        wait();
+    }, []);
+
+    return (
+        <React.Fragment>
+            <div ref={ref} className="content-box">
+                <div className="content-wrap">
+                    <div className="form-header">
+                        <Typography variant="body1" color="green">
+                            <span className="flex flex-row items-center justify-center">
+                                <CheckCircle />
+                                <span className="pl-2 font-medium text-2xl">
+                                    Success!
+                                </span>
+                            </span>
+                        </Typography>
+                    </div>
+                    <p className="form-text text-lg text-left">
+                        You've successfully reset your password!
+                    </p>
+                    <p className="form-text text-lg mt-3">
+                        You'll be redirected to the app shortly.
+                    </p>
+                </div>
+            </div>
+        </React.Fragment>
+    );
+};

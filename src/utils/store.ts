@@ -1,7 +1,17 @@
-import { configureStore } from "@reduxjs/toolkit";
+"use client"
+
 import persistedCounterReducer from "./counterSlice";
+import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
+import persistedThemeReducer from "./storeSlices/themeSlice";
+import persistedUserReducer from "./storeSlices/userSlice";
+import persistedRegisterReducer from "./storeSlices/registerSlice";
+import persistedForgotReducer from "./storeSlices/forgotSlice";
+import persistedTokenReducer from "./storeSlices/tokenSlice";
+import thunk from "redux-thunk";
 import { PersistConfig, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
+// import { Api } from "./apiService";
+
 
 export const persistConfig: PersistConfig<RootState> = {
     key: "root",
@@ -10,13 +20,16 @@ export const persistConfig: PersistConfig<RootState> = {
 
 export const store = configureStore({
     reducer: {
-        counter: persistedCounterReducer,
-
+        theme: persistedThemeReducer,
+        user: persistedUserReducer,
+        register: persistedRegisterReducer,
+        forgot: persistedForgotReducer,
+        token: persistedTokenReducer,
+        // [Api.reducerPath]: Api.reducer,
     },
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-            serializableCheck: false,
-        }),
+        getDefaultMiddleware().concat(thunk)
+        // .concat(Api.middleware),
 });
 
 export const persistor = persistStore(store);
