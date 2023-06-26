@@ -26,6 +26,7 @@ export default function Home() {
             >
                 Decrement
             </Button>
+            <img src="images/Screenshot_2023-06-26-12-27-39-948_com.miui.gallery-edit.jpg" alt="" />
         </>
     );
 }
