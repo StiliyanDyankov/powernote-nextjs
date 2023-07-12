@@ -46,7 +46,7 @@ export const Api = createApi({
                 },
             }),
         }),
-        postLogin: builder.mutation<ResCredentialSuccess, any>({
+        postLogin: builder.mutation<ResCredentialSuccess, Credentials>({
             query: (credentials) => ({
                 url: "auth/login",
                 method: "POST",
