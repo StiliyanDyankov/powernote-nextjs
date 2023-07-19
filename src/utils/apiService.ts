@@ -1,9 +1,9 @@
 "use client"
 
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { ResCredentialError, ResCredentialSuccess } from "@/components/authPortal/RegisterSection";
+import { AuthResponse, ResCredentialError, ResCredentialSuccess } from "@/components/authPortal/RegisterSection";
 
-const server = "https://powernote-backend-new.vercel.app/api/";
+const server = "http://localhost:8081/api/v1/auth/";
 
 interface Credentials {
     email: string;
@@ -15,9 +15,9 @@ export const Api = createApi({
     reducerPath: "api",
     baseQuery: fetchBaseQuery({ baseUrl: server }),
     endpoints: (builder) => ({
-        postRegisterCredentials: builder.mutation<ResCredentialSuccess, any>({
+        postRegisterCredentials: builder.mutation<AuthResponse, any>({
             query: (credentials) => ({
-                url: "auth/register",
+                url: "register",
                 method: "POST",
                 body: credentials,
                 headers: {
@@ -25,7 +25,7 @@ export const Api = createApi({
                 },
             }),
         }),
-        postRegisterCode: builder.mutation({
+        postRegisterCode: builder.mutation<AuthResponse, any>({
             query: ({ code, token }) => ({
                 url: "verification/register",
                 method: "POST",
@@ -36,19 +36,19 @@ export const Api = createApi({
                 },
             }),
         }),
-        postResendCode: builder.mutation({
+        postResendCode: builder.mutation<AuthResponse, any>({
             query: ({ token }) => ({
-                url: "verification/resendCode",
-                method: "POST",
+                url: "verification/newCode",
+                method: "GET",
                 headers: {
                     "Content-Type": "application/json",
                     authorization: `Bearer ${token.token}`,
                 },
             }),
         }),
-        postLogin: builder.mutation<ResCredentialSuccess, Credentials>({
+        postLogin: builder.mutation<AuthResponse, any>({
             query: (credentials) => ({
-                url: "auth/login",
+                url: "authenticate",
                 method: "POST",
                 body: credentials,
                 headers: {
@@ -56,9 +56,9 @@ export const Api = createApi({
                 },
             }),
         }),
-        postForgotCode: builder.mutation({
+        postForgotCode: builder.mutation<AuthResponse, any>({
             query: ({ code, token }) => ({
-                url: "verification/forgot",
+                url: "verification/forgottenPassword",
                 method: "POST",
                 body: code,
                 headers: {
@@ -67,9 +67,9 @@ export const Api = createApi({
                 },
             }),
         }),
-        postForgotEmailAuth: builder.mutation({
+        postForgotEmailAuth: builder.mutation<AuthResponse, any>({
             query: (email) => ({
-                url: "auth/forgot/emailAuth",
+                url: "forgottenPassword",
                 method: "POST",
                 body: email,
                 headers: {
@@ -77,9 +77,9 @@ export const Api = createApi({
                 },
             }),
         }),
-        postForgotChangePassword: builder.mutation({
+        postForgotChangePassword: builder.mutation<AuthResponse, any>({
             query: ({ password, token }) => ({
-                url: "auth/forgot/changePassword",
+                url: "newPassword",
                 method: "POST",
                 body: password,
                 headers: {

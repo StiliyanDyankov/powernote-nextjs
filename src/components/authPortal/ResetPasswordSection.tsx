@@ -13,7 +13,7 @@ import { RootState } from "../../utils/store";
 import { clearPassword } from "../../utils/storeSlices/userSlice";
 import { usePasswordErrors, useTransitionRef } from "../../utils/hooks";
 import { usePostForgotChangePasswordMutation } from "../../utils/apiService";
-import { ResCredentialError, ResCredentialSuccess } from "./RegisterSection";
+import { AuthResponse, ResCredentialError, ResCredentialSuccess } from "./RegisterSection";
 import { setToken } from "../../utils/storeSlices/tokenSlice";
 
 const ResetPasswordSection = ({ onSubmit }: { onSubmit: () => void }) => {
@@ -65,39 +65,34 @@ const ResetPasswordSection = ({ onSubmit }: { onSubmit: () => void }) => {
             return;
         }
 
-        const res = await postCredentials({
+        await postCredentials({
             password: { newPassword: storePasswordValue },
             token,
-        });
+        }).unwrap().then(async (p)=> {
+            // handle 200
+            const payload = p as AuthResponse;
+            
+            const token = payload.data?.token as string;
 
-        if ((res as ResCredentialError).error) {
-            if ((res as ResCredentialError).error.status === 500) {
-                setServerError(true);
-                return;
-            }
-            if (
-                (
-                    (res as ResCredentialError).error.data
-                        .errors as PasswordErrors
-                ).hasOwnProperty("noPasswordServer")
-            ) {
-                setPasswordErrors(
-                    (res as ResCredentialError).error.data
-                        .errors as PasswordErrors
-                );
-                return;
-            }
-            return;
-        }
-
-        if ((res as unknown as ResCredentialSuccess).data) {
-            const token = (
-                res as unknown as ResCredentialSuccess
-            ).data.token.substring(7);
             dispatch(setToken(token));
-        }
 
-        onSubmit();
+            // simulating fetching
+            // await new Promise((r) => setTimeout(r, 3000));
+
+            onSubmit();
+        }).catch((err)=> {
+            // handle all that isn't 200
+            const error = err as { data: AuthResponse, status: number };
+
+            console.log(error);
+            
+            if(error.status === 500) {
+                setServerError(true);
+            
+            } else if(error.data.error?.type === "PASSWORD_ERROR") {
+                setPasswordErrors(error.data.error.errors as PasswordErrors);
+            }
+        });
     };
 
     useEffect(() => {

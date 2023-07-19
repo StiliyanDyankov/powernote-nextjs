@@ -5,6 +5,8 @@ import { PersistConfig, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
 export interface UserState {
+    firstName: string;
+    lastName: string;
     email: string;
     password: string;
 }
@@ -16,6 +18,8 @@ export const persistConfig: PersistConfig<UserState> = {
 
 
 const initialState: UserState = {
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
 };
@@ -24,6 +28,12 @@ export const userSlice = createSlice({
     name: "user",
     initialState,
     reducers: {
+        inputFirstName: (state, action: PayloadAction<string>) => {
+            state.firstName = action.payload;
+        },
+        inputLastName: (state, action: PayloadAction<string>) => {
+            state.lastName = action.payload;
+        },
         inputEmail: (state, action: PayloadAction<string>) => {
             state.email = action.payload;
         },
@@ -39,7 +49,7 @@ export const userSlice = createSlice({
     },
 });
 
-export const { inputEmail, inputPassword, clearPassword, clearEmail } = userSlice.actions;
+export const { inputEmail, inputPassword, clearPassword, clearEmail, inputFirstName, inputLastName } = userSlice.actions;
 
 const persistedReducer = persistReducer(persistConfig, userSlice.reducer);
 export default persistedReducer;

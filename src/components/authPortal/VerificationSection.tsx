@@ -17,7 +17,7 @@ import {
     usePostRegisterCodeMutation,
     usePostResendCodeMutation,
 } from "../../utils/apiService";
-import { ResCredentialError, ResCredentialSuccess } from "./RegisterSection";
+import { AuthResponse, ResCredentialError, ResCredentialSuccess } from "./RegisterSection";
 import { setToken } from "../../utils/storeSlices/tokenSlice";
 
 const VerificationSection = ({
@@ -74,44 +74,95 @@ const VerificationSection = ({
         let res = {};
 
         if (type === "register") {
-            res = await postRegisterCode({
+            await postRegisterCode({
                 code: { verificationCode: pin },
                 token,
-            });
+            }).unwrap().then((p)=> {
+                const payload = p as AuthResponse;
 
-            if ((res as ResCredentialError).error) {
-                if ((res as ResCredentialError).error.status === 500) {
+                const token = payload.data?.token as string;
+
+                dispatch(setToken(token));
+
+                onNext();
+
+            }).catch((err) => { 
+                const error = err as { data: AuthResponse, status: number };
+
+                console.log(err)
+                
+                if(error.status === 500) {
                     setServerError(true);
-                    return;
+                } else {
+                    setPinError(true);
                 }
-                setPinError(true);
-                return;
-            }
+
+            });
+            // console.log(res);
+            // if ((res as ResCredentialError).error !== null) {
+            //     if ((res as ResCredentialError).error.status === 500) {
+            //         setServerError(true);
+            //         return;
+            //     }
+            //     setPinError(true);
+            //     return;
+            // }
         }
 
         if (type === "forgot") {
-            res = await postForgotCode({
+            
+            await postForgotCode({
                 code: { verificationCode: pin },
                 token,
-            });
-            if ((res as ResCredentialError).error) {
-                if ((res as ResCredentialError).error.status === 500) {
+            }).unwrap().then((p)=> {
+                const payload = p as AuthResponse;
+
+                const token = payload.data?.token as string;
+
+                dispatch(setToken(token));
+
+                onNext();
+
+            }).catch((err) => { 
+                const error = err as { data: AuthResponse, status: number };
+                
+                if(error.status === 500) {
                     setServerError(true);
-                    return;
+                } else {
+                    setPinError(true);
                 }
-                setPinError(true);
-                return;
-            }
+
+
+            });
+            
+            // res = await postForgotCode({
+            //     code: { verificationCode: `${pin}` },
+            //     token,
+            // });
+
+            // console.log(res);
+            // if ((res as ResCredentialError).error) {
+            //     if ((res as ResCredentialError).error.status === 500) {
+            //         setServerError(true);
+            //         return;
+            //     }
+            //     setPinError(true);
+            //     return;
+            // }
+
+
+
+
         }
 
-        if ((res as unknown as ResCredentialSuccess).data) {
-            const token = (
-                res as unknown as ResCredentialSuccess
-            ).data.token.substring(7);
-            dispatch(setToken(token));
-        }
+        // if ((res as unknown as ResCredentialSuccess).data) {
+        //     const token = (
+        //         res as unknown as ResCredentialSuccess
+        //     ).data.data.token.substring(7);
+        //     dispatch(setToken(token));
+        // }
 
-        onNext();
+        // onNext();
     };
 
     const handleEnter = () => {
@@ -124,7 +175,7 @@ const VerificationSection = ({
         if ((res as { data: any }).data) {
             const token = (
                 res as unknown as ResCredentialSuccess
-            ).data.token.substring(7);
+            ).data.data.token.substring(7);
             dispatch(setToken(token));
             setShowResendAlert(true);
         }

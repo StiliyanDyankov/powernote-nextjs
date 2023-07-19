@@ -10,7 +10,7 @@ import persistedTokenReducer from "./storeSlices/tokenSlice";
 import thunk from "redux-thunk";
 import { PersistConfig, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-// import { Api } from "./apiService";
+import { Api } from "./apiService";
 
 
 export const persistConfig: PersistConfig<RootState> = {
@@ -25,11 +25,11 @@ export const store = configureStore({
         register: persistedRegisterReducer,
         forgot: persistedForgotReducer,
         token: persistedTokenReducer,
-        // [Api.reducerPath]: Api.reducer,
+        [Api.reducerPath]: Api.reducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat(thunk)
-        // .concat(Api.middleware),
+        .concat(Api.middleware),
 });
 
 export const persistor = persistStore(store);

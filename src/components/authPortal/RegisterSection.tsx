@@ -17,12 +17,13 @@ import {
     Button,
     CircularProgress,
     Link as LinkMUI,
+    TextField,
 } from "@mui/material";
 // import { useHref } from "react-router-dom";
 // import { useLinkClickHandler } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../utils/store";
-import { clearPassword } from "../../utils/storeSlices/userSlice";
+import { clearPassword, inputFirstName, inputLastName } from "../../utils/storeSlices/userSlice";
 import {
     useEmailErrors,
     usePasswordErrors,
@@ -32,21 +33,36 @@ import { usePostRegisterCredentialsMutation } from "../../utils/apiService";
 import { goNextStep } from "../../utils/storeSlices/registerSlice";
 import { setToken } from "../../utils/storeSlices/tokenSlice";
 import Router from "next/router";
+import React from "react";
 
 export interface ResCredentialError {
-    error: {
-        data: {
-            errors: EmailErrors | PasswordErrors;
-            message: string;
+        error: {
+            data: {
+                errors: EmailErrors | PasswordErrors;
+                message: string;
+            };
+            status: number;
         };
-        status: number;
-    };
 }
 
 export interface ResCredentialSuccess {
     data: {
-        message: string;
+        data: {
+            message: string;
+            token: string;
+        };
+    }
+}
+
+export interface AuthResponse {
+    data?: {
         token: string;
+        message?: string;
+    };
+    error?: {
+        message: string;
+        type?: "EMAIL_ERROR" | "PASSWORD_ERROR";
+        errors: EmailErrors | PasswordErrors;
     };
 }
 
@@ -57,7 +73,10 @@ const RegisterSection = ({ onRegister }: { onRegister: () => void }) => {
         (state: RootState) => state.user.password
     );
 
-    const [postCredentials, { data, error, isLoading }] =
+    const storeFirstNameValue = useSelector((state: RootState) => state.user.firstName);
+    const storeLastNameValue = useSelector((state: RootState) => state.user.lastName);
+
+    const [postCredentials, { isLoading }] =
         usePostRegisterCredentialsMutation();
 
     const transitionRef = useTransitionRef();
@@ -68,6 +87,10 @@ const RegisterSection = ({ onRegister }: { onRegister: () => void }) => {
 
     const [noPassMatch, setNoPassMatch] = useState<boolean>(false);
 
+    const [firstNameIsEmpty, setFirstNameIsEmpty] = useState<boolean>(false);
+    
+    const [lastNameIsEmpty, setLastNameIsEmpty] = useState<boolean>(false);
+
     const [emailErrors, setEmailErrors] = useEmailErrors();
 
     const [passwordErrors, setPasswordErrors] =
@@ -75,9 +98,6 @@ const RegisterSection = ({ onRegister }: { onRegister: () => void }) => {
 
     const [controlledShowPassword, setControlledShowPassword] =
         useState<boolean>(false);
-
-    // const loginURL = useHref("/login");
-    // const handleLoginLink = useLinkClickHandler("/login");
 
     const handleControlledShowPassword = () => {
         setControlledShowPassword(!controlledShowPassword);
@@ -93,6 +113,16 @@ const RegisterSection = ({ onRegister }: { onRegister: () => void }) => {
             emailErrors
         );
 
+        if(storeFirstNameValue.length === 0) {
+            setFirstNameIsEmpty(true);
+            return;
+        }
+
+        if(storeLastNameValue.length === 0) {
+            setLastNameIsEmpty(true);
+            return;
+        }
+
         setEmailErrors(emailCheckedErrors);
         if (!validateEmail(emailCheckedErrors)) {
             return;
@@ -102,6 +132,7 @@ const RegisterSection = ({ onRegister }: { onRegister: () => void }) => {
             storePasswordValue,
             passwordErrors
         );
+
         setPasswordErrors(passwordCheckedErrors);
         if (!validatePassword(passwordCheckedErrors)) {
             return;
@@ -112,50 +143,45 @@ const RegisterSection = ({ onRegister }: { onRegister: () => void }) => {
             return;
         }
 
-        // handle request
-        const res = await postCredentials({
+        console.log({
+            firstName: storeFirstNameValue,
+            lastName: storeLastNameValue,
             email: storeEmailValue,
             password: storePasswordValue,
         });
+        
+        // handle request
+        await postCredentials({
+            firstname: storeFirstNameValue,
+            lastname: storeLastNameValue,
+            email: storeEmailValue,
+            password: storePasswordValue,
+        }).unwrap().then((p)=> {
+            // handle 200
+            const payload = p as AuthResponse;
+            
+            const token = payload.data?.token as string;
 
-        if ((res as ResCredentialError).error) {
-            if ((res as ResCredentialError).error.status === 500) {
-                setServerError(true);
-                return;
-            }
-            if (
-                (
-                    (res as ResCredentialError).error.data.errors as EmailErrors
-                ).hasOwnProperty("alreadyExists")
-            ) {
-                setEmailErrors(
-                    (res as ResCredentialError).error.data.errors as EmailErrors
-                );
-                return;
-            }
-            if (
-                (
-                    (res as ResCredentialError).error.data
-                        .errors as PasswordErrors
-                ).hasOwnProperty("noPasswordServer")
-            ) {
-                setPasswordErrors(
-                    (res as ResCredentialError).error.data
-                        .errors as PasswordErrors
-                );
-                return;
-            }
-            return;
-        }
-
-        if ((res as unknown as ResCredentialSuccess).data) {
-            const token = (
-                res as unknown as ResCredentialSuccess
-            ).data.token.substring(7);
             dispatch(setToken(token));
-        }
 
-        onRegister();
+            onRegister();
+
+        }).catch((err)=> {
+            // handle all that isn't 200
+            const error = err as { data: AuthResponse, status: number };
+
+            console.log(error);
+            
+            if(error.status === 500) {
+                setServerError(true);
+            
+            } else if(error.data.error?.type === "EMAIL_ERROR") {
+                setEmailErrors(error.data.error.errors as EmailErrors);
+            
+            } else if(error.data.error?.type === "PASSWORD_ERROR") {
+                setPasswordErrors(error.data.error.errors as PasswordErrors);
+            }
+        });
     };
 
     // clear repeat password error on input
@@ -169,6 +195,10 @@ const RegisterSection = ({ onRegister }: { onRegister: () => void }) => {
         };
     }, []);
 
+    function onEnter() {
+        throw new Error("Function not implemented.");
+    }
+
     return (
         <div ref={transitionRef} className="content-box">
             {/* content-wrap */}
@@ -176,6 +206,72 @@ const RegisterSection = ({ onRegister }: { onRegister: () => void }) => {
                 <h1 className="form-header">Register</h1>
                 {/* form-wrap */}
                 <form className="flex flex-col items-stretch gap-4 ">
+                    <div className="flex flex-row gap-4">
+                        <TextField
+                            id="outlined-basic"
+                            autoComplete="test"
+                            autoFocus={true}
+                            error={firstNameIsEmpty}
+                            label="First Name"
+                            variant="outlined"
+                            size="small"
+                            color="secondary"
+                            value={storeFirstNameValue}
+                            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                                if(firstNameIsEmpty) setFirstNameIsEmpty(false);
+                                if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    onEnter();
+                                } else return;
+                            }}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                dispatch(inputFirstName(e.target.value));
+                            }}
+                            helperText={
+                                <React.Fragment>
+                                    {firstNameIsEmpty ? (
+                                        <span>
+                                            - First Name cannot be empty <br />
+                                        </span>
+                                    ) : (
+                                        ""
+                                    )}
+                                </React.Fragment>
+                            }
+                        />
+                        <TextField
+                            id="outlined-basic"
+                            autoComplete="test"
+                            autoFocus={true}
+                            error={lastNameIsEmpty}
+                            label="Last Name"
+                            variant="outlined"
+                            size="small"
+                            color="secondary"
+                            value={storeLastNameValue}
+                            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                                if(lastNameIsEmpty) setLastNameIsEmpty(false);
+                                if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    onEnter();
+                                } else return;
+                            }}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                dispatch(inputLastName(e.target.value));
+                            }}
+                            helperText={
+                                <React.Fragment>
+                                    {lastNameIsEmpty ? (
+                                        <span>
+                                            - Last Name cannot be empty <br />
+                                        </span>
+                                    ) : (
+                                        ""
+                                    )}
+                                </React.Fragment>
+                            }
+                        />
+                    </div>
                     <EmailField errors={emailErrors} onEnter={handleRegister} />
                     <PasswordField
                         errors={passwordErrors}

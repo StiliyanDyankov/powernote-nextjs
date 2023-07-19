@@ -16,7 +16,7 @@ import {
     useTransitionRef,
 } from "./../utils/hooks";
 import { usePostLoginMutation } from "../utils/apiService";
-import { ResCredentialError, ResCredentialSuccess } from "@/components/authPortal/RegisterSection";
+import { AuthResponse, ResCredentialError, ResCredentialSuccess } from "@/components/authPortal/RegisterSection";
 import { setToken } from "../utils/storeSlices/tokenSlice";
 import Router from "next/router";
 
@@ -54,49 +54,84 @@ const LoginPage: React.FC = () => {
     const handleLogin = async () => {
         // setWaitServerRes(true);
 
-        const res = await postLogin({
+        await postLogin({
             email: storeEmailValue,
             password: storePasswordValue,
-        });
+        }).unwrap().then(async (p)=> {
+            // handle 200
+            const payload = p as AuthResponse;
+            
+            const token = payload.data?.token as string;
 
-        console.log(res);
-
-        if ((res as ResCredentialError).error) {
-            if ((res as ResCredentialError).error.status === 500) {
-                setServerError(true);
-                return;
-            }
-            if (
-                (
-                    (res as ResCredentialError).error.data.errors as EmailErrors
-                ).hasOwnProperty("alreadyExists")
-            ) {
-                setEmailErrors(
-                    (res as ResCredentialError).error.data.errors as EmailErrors
-                );
-                return;
-            }
-            if (
-                (
-                    (res as ResCredentialError).error.data
-                        .errors as PasswordErrors
-                ).hasOwnProperty("noPasswordServer")
-            ) {
-                setPasswordErrors(
-                    (res as ResCredentialError).error.data
-                        .errors as PasswordErrors
-                );
-                return;
-            }
-            return;
-        }
-
-        if ((res as unknown as ResCredentialSuccess).data) {
-            const token = (
-                res as unknown as ResCredentialSuccess
-            ).data.token.substring(7);
             dispatch(setToken(token));
-        }
+
+            // simulating fetching
+            // await new Promise((r) => setTimeout(r, 3000));
+
+            Router.push("/app")
+        }).catch((err)=> {
+            // handle all that isn't 200
+            const error = err as { data: AuthResponse, status: number };
+
+            console.log(error);
+            
+            if(error.status === 500) {
+                setServerError(true);
+            
+            } else if(error.data.error?.type === "EMAIL_ERROR") {
+                setEmailErrors(error.data.error.errors as EmailErrors);
+            
+            } else if(error.data.error?.type === "PASSWORD_ERROR") {
+                setPasswordErrors(error.data.error.errors as PasswordErrors);
+            }
+        });
+        
+
+
+
+        // const res = await postLogin({
+        //     email: storeEmailValue,
+        //     password: storePasswordValue,
+        // });
+
+        // console.log(res);
+
+        // if ((res as ResCredentialError).error) {
+        //     if ((res as ResCredentialError).error.status === 500) {
+        //         setServerError(true);
+        //         return;
+        //     }
+        //     if (
+        //         (
+        //             (res as ResCredentialError).error.data.errors as EmailErrors
+        //         ).hasOwnProperty("alreadyExists")
+        //     ) {
+        //         setEmailErrors(
+        //             (res as ResCredentialError).error.data.errors as EmailErrors
+        //         );
+        //         return;
+        //     }
+        //     if (
+        //         (
+        //             (res as ResCredentialError).error.data
+        //                 .errors as PasswordErrors
+        //         ).hasOwnProperty("noPasswordServer")
+        //     ) {
+        //         setPasswordErrors(
+        //             (res as ResCredentialError).error.data
+        //                 .errors as PasswordErrors
+        //         );
+        //         return;
+        //     }
+        //     return;
+        // }
+
+        // if ((res as unknown as ResCredentialSuccess).data) {
+        //     const token = (
+        //         res as unknown as ResCredentialSuccess
+        //     ).data.token.substring(7);
+        //     dispatch(setToken(token));
+        // }
 
         // simulating fetching
         // await new Promise((r) => setTimeout(r, 3000));

@@ -13,7 +13,7 @@ import { RootState } from "../../utils/store";
 import { clearPassword } from "../../utils/storeSlices/userSlice";
 import { useEmailErrors, useTransitionRef } from "../../utils/hooks";
 import { usePostForgotEmailAuthMutation } from "../../utils/apiService";
-import { ResCredentialError, ResCredentialSuccess } from "./RegisterSection";
+import { AuthResponse, ResCredentialError, ResCredentialSuccess } from "./RegisterSection";
 import { setToken } from "../../utils/storeSlices/tokenSlice";
 
 const ForgotEmailSection = ({ onSubmit }: { onSubmit: () => void }) => {
@@ -31,36 +31,58 @@ const ForgotEmailSection = ({ onSubmit }: { onSubmit: () => void }) => {
     const [serverError, setServerError] = useState<boolean>(false);
 
     const handleEmailSubmit = async () => {
-        const res = await postCredentials({
+        await postCredentials({
             email: storeEmailValue,
+        }).unwrap().then((p)=> {
+            // handle 200
+            const payload = p as AuthResponse;
+            
+            const token = payload.data?.token as string;
+
+            dispatch(setToken(token));
+
+            onSubmit();
+        }).catch((err)=> {
+            // handle all that isn't 200
+            const error = err as { data: AuthResponse, status: number };
+
+            console.log(error);
+            
+            if(error.status === 500) {
+                setServerError(true);
+            
+            } else if(error.data.error?.type === "EMAIL_ERROR") {
+                setEmailErrors(error.data.error.errors as EmailErrors);
+            
+            }
         });
 
-        if ((res as ResCredentialError).error) {
-            if ((res as ResCredentialError).error.status === 500) {
-                setServerError(true);
-                return;
-            }
-            if (
-                (
-                    (res as ResCredentialError).error.data.errors as EmailErrors
-                ).hasOwnProperty("alreadyExists")
-            ) {
-                setEmailErrors(
-                    (res as ResCredentialError).error.data.errors as EmailErrors
-                );
-                return;
-            }
-            return;
-        }
+        // if ((res as ResCredentialError).error) {
+        //     if ((res as ResCredentialError).error.status === 500) {
+        //         setServerError(true);
+        //         return;
+        //     }
+        //     if (
+        //         (
+        //             (res as ResCredentialError).error.data.errors as EmailErrors
+        //         ).hasOwnProperty("alreadyExists")
+        //     ) {
+        //         setEmailErrors(
+        //             (res as ResCredentialError).error.data.errors as EmailErrors
+        //         );
+        //         return;
+        //     }
+        //     return;
+        // }
 
-        if ((res as unknown as ResCredentialSuccess).data) {
-            const token = (
-                res as unknown as ResCredentialSuccess
-            ).data.token.substring(7);
-            dispatch(setToken(token));
-        }
+        // if ((res as unknown as ResCredentialSuccess).data) {
+        //     const token = (
+        //         res as unknown as ResCredentialSuccess
+        //     ).data.token.substring(7);
+        //     dispatch(setToken(token));
+        // }
 
-        onSubmit();
+        // onSubmit();
     };
 
     useEffect(() => {
