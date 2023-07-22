@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useEffect } from "react";
 // import { useHref, useLinkClickHandler, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,6 +20,7 @@ import { AuthResponse, ResCredentialError, ResCredentialSuccess } from "@/compon
 import { setToken } from "../utils/storeSlices/tokenSlice";
 import Router from "next/router";
 
+// let isComingFromExt = false
 
 const LoginPage: React.FC = () => {
     const dispatch = useDispatch();
@@ -30,18 +31,10 @@ const LoginPage: React.FC = () => {
     const storePasswordValue = useSelector(
         (state: RootState) => state.user.password
     );
-
-    // const navigate = useNavigate();
+    
+    // const isComingFromExt = useRef(false);
 
     const ref = useTransitionRef();
-
-    // const forgotURL = useHref("/forgottenPassword");
-    // const handleForgotLink = useLinkClickHandler("/forgottenPassword");
-
-    // const registerURL = useHref("/register");
-    // const handleRegisterLink = useLinkClickHandler("/register");
-
-    // const appURL = useHref("/app");
 
     const [serverError, setServerError] = useState<boolean>(false);
 
@@ -49,10 +42,8 @@ const LoginPage: React.FC = () => {
 
     const [passwordErrors, setPasswordErrors] = usePasswordErrors();
 
-    // const [waitServerRes, setWaitServerRes] = useState<boolean>(false);
 
     const handleLogin = async () => {
-        // setWaitServerRes(true);
 
         await postLogin({
             email: storeEmailValue,
@@ -65,10 +56,22 @@ const LoginPage: React.FC = () => {
 
             dispatch(setToken(token));
 
+            const successfullLoginEvent = new CustomEvent("successfulLogin", { detail: { token: token } });
+            
+            window.dispatchEvent(successfullLoginEvent);
+
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const myParam = urlParams.get('loginFromExt');
+
+            if(myParam) { console.log("hey, it's coming from ext!"); Router.push("/loginFromExt")}
+
+            else { Router.push("/app") }
+
             // simulating fetching
             // await new Promise((r) => setTimeout(r, 3000));
 
-            Router.push("/app")
+            
         }).catch((err)=> {
             // handle all that isn't 200
             const error = err as { data: AuthResponse, status: number };
@@ -85,65 +88,28 @@ const LoginPage: React.FC = () => {
                 setPasswordErrors(error.data.error.errors as PasswordErrors);
             }
         });
-        
-
-
-
-        // const res = await postLogin({
-        //     email: storeEmailValue,
-        //     password: storePasswordValue,
-        // });
-
-        // console.log(res);
-
-        // if ((res as ResCredentialError).error) {
-        //     if ((res as ResCredentialError).error.status === 500) {
-        //         setServerError(true);
-        //         return;
-        //     }
-        //     if (
-        //         (
-        //             (res as ResCredentialError).error.data.errors as EmailErrors
-        //         ).hasOwnProperty("alreadyExists")
-        //     ) {
-        //         setEmailErrors(
-        //             (res as ResCredentialError).error.data.errors as EmailErrors
-        //         );
-        //         return;
-        //     }
-        //     if (
-        //         (
-        //             (res as ResCredentialError).error.data
-        //                 .errors as PasswordErrors
-        //         ).hasOwnProperty("noPasswordServer")
-        //     ) {
-        //         setPasswordErrors(
-        //             (res as ResCredentialError).error.data
-        //                 .errors as PasswordErrors
-        //         );
-        //         return;
-        //     }
-        //     return;
-        // }
-
-        // if ((res as unknown as ResCredentialSuccess).data) {
-        //     const token = (
-        //         res as unknown as ResCredentialSuccess
-        //     ).data.token.substring(7);
-        //     dispatch(setToken(token));
-        // }
-
-        // simulating fetching
-        // await new Promise((r) => setTimeout(r, 3000));
-
-        // navigate("/app");
     };
 
     useEffect(() => {
+        // window.postMessage({message: "hey, its me, the injected script", type: "FROM_REACT_APP"})
+        // window.addEventListener("message", receiveMessage)
+        // console.log("has run attaching of message listener");
+        
         return () => {
             dispatch(clearPassword());
+            console.log("im diyinggggg")
+            window.postMessage({message: "hey, its me, the injected script", type: "FROM_REACT_APP"})
         };
     }, []);
+
+    // const receiveMessage = (event: MessageEvent) => {
+    //     console.log(event);
+    //     if(event.data.type === "FROM_CONTENT_SCRIPT") {
+
+    //         isComingFromExt = true;
+    //         window.removeEventListener("message", receiveMessage);
+    //     }  
+    // };
 
     return (
         <AuthPageWrapper>
