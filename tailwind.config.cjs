@@ -21,7 +21,7 @@ module.exports = {
       "d-400-sibebar": "#454c7f",
       "d-500-divider": "#525c98",
       "d-600-lightest": "#7f87b9",
-      "d-700-text": "#a6abce"
+      "d-700-text": "#a6abce",
     },
     extend: {
       fontFamily: {

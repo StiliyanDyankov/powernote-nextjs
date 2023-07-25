@@ -1,29 +1,29 @@
-"use client"
-
-import ModeSwitch from "./ModeSwitch";
+import ModeSwitch from "../authPortal/ModeSwitch";
 import Link from "next/link";
 import { useSelector } from "react-redux";
 import { RootState } from "../../utils/store";
 import React from "react";
+import Searchbar from "./Searchbar";
 
-const AuthPageWrapper = ({ children }: { children: React.ReactNode }) => {
+const AppPageWrapper = ({ children }: { children: React.ReactNode }) => {
     // const storeTheme = useSelector((state: RootState) => state.theme.darkTheme);
 
     return (
         // root
-        <div className="flex items-center justify-center w-screen h-screen bg-l-workscreen-bg dark:bg-d-100-body-bg font-quicksand">
+        <div className="flex flex-col items-center justify-center w-screen h-screen bg-l-workscreen-bg dark:bg-d-100-body-bg font-quicksand">
             {/* header */}
-            <div className="absolute top-0 flex flex-row items-center justify-between w-screen px-8 py-2 bg-primary dark:bg-d-200-cards">
+            <div className=" flex flex-row items-center justify-between w-screen h-fit px-8 py-1 bg-primary dark:bg-d-200-cards">
                 <Link href="/">
                     <span className="text-4xl font-semibold text-gray-800 dark:text-l-workscreen-bg">
                         KN
                     </span>
                 </Link>
+                <Searchbar/>
                 <ModeSwitch />
             </div>
-            <div className="w-96 mx-3">{children}</div>
+            <div className="w-screen grow ">{children}</div>
         </div>
     );
 };
 
-export default AuthPageWrapper;
+export default AppPageWrapper;
