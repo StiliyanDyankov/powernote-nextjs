@@ -22,8 +22,8 @@ export interface Tab {
 	workscreens: Workscreen[];
 }
 
-interface Workscreen {
-    position: string;
+export interface Workscreen {
+    position: PossiblePositions;
     type: WorkscreenTypes;
     content: InteractContent | HomeContent | NoteContent;
 }
@@ -32,6 +32,18 @@ enum WorkscreenTypes {
     NOTE = "NOTE",
     INTERACT = "INTERACT",
     HOME = "HOME",
+}
+
+enum PossiblePositions {
+    FULL = "FULL",
+    LEFT = "LEFT", 
+    RIGHT = "RIGHT",
+    TOP = "TOP",
+    BOTTOM = "BOTTOM",
+    TOP_LEFT = "TOP_LEFT",
+    TOP_RIGHT = "TOP_RIGHT",
+    BOTTOM_LEFT = "BOTTOM_LEFT", 
+    BOTTOM_RIGHT = "BOTTOM_RIGHT"
 }
 
 interface InteractContent {
@@ -94,7 +106,14 @@ export const appSlice = createSlice({
             state.tabs.push({
                 tabId: state.counterForTabs,
                 tabName: action.payload,
-                workscreens: []
+                workscreens: [{
+                    position: PossiblePositions.FULL,
+                    type: WorkscreenTypes.HOME,
+                    content: {
+                        topics: [],
+                        notes: []
+                    }
+                }]
             })
             state.tabActivityChain.push(state.counterForTabs);
             state.tabActivityChain = cleanChain(state.tabActivityChain);

@@ -12,12 +12,8 @@ import { restrictToParentElement, restrictToVerticalAxis } from "@dnd-kit/modifi
 
 
 const TabBar = () => {
-
     const dispatch = useDispatch();
     const tabs = useSelector((state: RootState) => state.app.tabs);
-    // const tabActivityChain = useSelector((state: RootState) => state.app.tabActivityChain);
-
-    const [isElementDragged, setIsElementDragged] = useState<boolean>(false);
 
     const handleCreateNewTab = () => {
         const initName = "some nofnsadfjdaslfkjasldf";
@@ -25,32 +21,18 @@ const TabBar = () => {
         dispatch(createNewTab(initName))
     }
 
-    const handleDrag = (state: boolean): void => {
-        setIsElementDragged(state);
-    }
-
     const sensors = useSensors(
         useSensor(PointerSensor, {
-          activationConstraint: {
-            distance: 8,
-          },
+            activationConstraint: {
+                distance: 8,
+            },
         })
-      )
+    );
+
+    useEffect(()=> {
+        // console.log(tabs);
+    }, [tabs])
    
-
-    // const handleRemoveTab = (id: number) => {
-    //     dispatch(removeTab(id))
-    // }
-
-    // const handleSetActiveTab = (id: number) => {
-    //     if(tabActivityChain[tabActivityChain.length-1] !== id) {
-    //         dispatch(setActiveTab(id))
-    //     }
-    // }
-
-    console.log(isElementDragged)
-
-
     return ( 
         <>
             {/* tab bar */}
@@ -62,7 +44,6 @@ const TabBar = () => {
                         dispatch(rearangeTabs({ delta: event.delta.x, placement: event.over?.id.valueOf() as number, tobeMoved: event.active.id.valueOf() as number}))
                     }}>
                     <div className=" w-fit h-7 flex flex-row gap-2 items-end justify-start">
-
                         {/* tabs */}
                         {
                             tabs.map((tab, i) => 

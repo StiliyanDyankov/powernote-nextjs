@@ -15,14 +15,14 @@ const AsideBar = () => {
                     <IconButton color="secondary">
                         <HomeIcon style={{scale: "1.3"}}/>
                     </IconButton>
-                    <p className="font-thin leading-4 dark:text-d-700-text text-center">Home</p>
+                    <p className="font-thin leading-4 dark:text-d-700-text text-center none select-none">Home</p>
                 </div>
                 
                 <div className="flex flex-col gap-0 w-fit h-fit items-center">
                     <IconButton color="secondary">
                         <PsychologyIcon style={{scale: "1.3"}}/>
                     </IconButton>
-                    <p className="font-thin leading-4 dark:text-d-700-text text-center">Interact</p>
+                    <p className="font-thin leading-4 dark:text-d-700-text text-center none select-none">Interact</p>
                 </div>
 
                 <Divider className="w-full"/>
@@ -31,14 +31,14 @@ const AsideBar = () => {
                     <IconButton color="secondary">
                         <NoteAddIcon style={{scale: "1.3"}}/>
                     </IconButton>
-                    <p className="font-thin leading-4 dark:text-d-700-text text-center">New Note</p>
+                    <p className="font-thin leading-4 dark:text-d-700-text text-center none select-none">New Note</p>
                 </div>
 
                 <div className="flex flex-col gap-0 w-fit h-fit items-center">
                     <IconButton color="secondary">
                         <CreateNewFolderIcon style={{scale: "1.3"}}/>
                     </IconButton>
-                    <p className="font-thin leading-4 dark:text-d-700-text text-center">New Topic</p>
+                    <p className="font-thin leading-4 dark:text-d-700-text text-center none select-none">New Topic</p>
                 </div>
 
             </div>

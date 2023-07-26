@@ -1,18 +1,12 @@
 "use client"
 
-import { Button, Divider } from "@mui/material";
 import Dexie, { Table } from "dexie";
 import AppPageWrapper from "./AppPageWrapper";
-import HomeIcon from '@mui/icons-material/Home';
-import { IconButton } from '@mui/material';
-import PsychologyIcon from '@mui/icons-material/Psychology';
-import NoteAddIcon from '@mui/icons-material/NoteAdd';
-import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import AsideBar from "./AsideBar";
-import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../utils/store";
 import TabBar from "./TabBar";
+import WorkscreenView from "./Workscreen";
 
 
 export interface Friend {
@@ -66,6 +60,8 @@ const AppView = () => {
     const tabs = useSelector((state: RootState) => state.app.tabs);
     const searchResults = useSelector((state: RootState) => state.app.searchResults);
 
+
+
     // useEffect(()=> {
     //     const db = new Dexie('myThirdDatabase');
     //     db.version(2).stores({
@@ -85,9 +81,8 @@ const AppView = () => {
                     {/* container for right side */}
                     <div className="grow flex flex-col w-full h-full">
                         <TabBar/>
-                        <div>
-
-                        </div>
+                        {/* workscreen */}
+                        <WorkscreenView/>
                         
                         
                         
