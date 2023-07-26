@@ -59,23 +59,11 @@ async function addFriend(db: MySubClassedDexie) {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
 const AppView = () => {
     const dispatch = useDispatch();
     const storeEmailValue = useSelector((state: RootState) => state.user.email);
 
     const tabs = useSelector((state: RootState) => state.app.tabs);
-    const activeTab = useSelector((state: RootState) => state.app.activeTab);
     const searchResults = useSelector((state: RootState) => state.app.searchResults);
 
     // useEffect(()=> {
