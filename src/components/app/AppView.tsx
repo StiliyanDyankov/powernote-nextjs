@@ -1,3 +1,5 @@
+"use client"
+
 import { Button, Divider } from "@mui/material";
 import Dexie, { Table } from "dexie";
 import AppPageWrapper from "./AppPageWrapper";

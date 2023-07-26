@@ -1,3 +1,4 @@
+"use client"
 import ModeSwitch from "../authPortal/ModeSwitch";
 import Link from "next/link";
 import { useSelector } from "react-redux";

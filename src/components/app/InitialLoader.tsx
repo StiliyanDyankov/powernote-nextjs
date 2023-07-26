@@ -1,3 +1,5 @@
+"use client"
+
 import Image from "next/image";
 import LogoSvg from "../../../public/krisinoteLogo.svg"
 import { useEffect, useRef } from "react";

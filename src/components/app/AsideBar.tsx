@@ -1,3 +1,4 @@
+"use client"
 import { Divider } from "@mui/material";
 import HomeIcon from '@mui/icons-material/Home';
 import { IconButton } from '@mui/material';

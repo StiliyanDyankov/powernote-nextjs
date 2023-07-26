@@ -1,3 +1,5 @@
+"use client"
+
 import {Divider, OutlinedInput, Skeleton } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import { useEffect, useRef, useState } from "react";

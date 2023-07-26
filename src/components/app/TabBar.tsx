@@ -1,3 +1,4 @@
+"use client"
 import { RootState } from "@/utils/store";
 import { IconButton, Tab, Tabs } from "@mui/material";
 import { useSelector } from "react-redux";
