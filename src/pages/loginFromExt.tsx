@@ -8,7 +8,7 @@ import { CircularProgress, Typography } from "@mui/material";
 import { CheckCircle } from "@mui/icons-material";
 import AuthPageWrapper from "@/components/authPortal/AuthPageWrapper";
 
-const loginFromExt = () => {
+const LoginFromExt = () => {
 
     const dispatch = useDispatch();
 
@@ -58,4 +58,4 @@ const loginFromExt = () => {
     );
 }
  
-export default loginFromExt;
+export default LoginFromExt;
