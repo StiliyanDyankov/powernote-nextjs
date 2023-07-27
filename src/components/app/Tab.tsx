@@ -2,7 +2,7 @@ import { IconButton, Tooltip } from "@mui/material";
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/utils/store";
-import { Tab, removeTab, setActiveTab } from "@/utils/storeSlices/appSlice";
+import { Tab, rearangeTabs, removeTab, setActiveTab } from "@/utils/storeSlices/appSlice";
 import { useDndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 import { useEffect, useRef, useState } from "react";
 
@@ -10,16 +10,18 @@ import { useEffect, useRef, useState } from "react";
 const Tab = ({tabPayload, id}: {tabPayload: Tab, id: number}) => {
     const dispatch = useDispatch();
     const tabActivityChain = useSelector((state: RootState) => state.app.tabActivityChain);
-    const numOfTabs = useSelector((state: RootState) => state.app.tabs.length);
     const tabs = useSelector((state: RootState) => state.app.tabs);
-
-    const [open, setOpen] = useState(false);
 
     const dndContext = useDndContext();
       
     const {attributes, listeners, setNodeRef, transform} = useDraggable({
         id: tabPayload.tabId,
+        data: {id}
     });
+
+    const [open, setOpen] = useState<boolean>(false);
+
+    const prevOver = useRef(null)
 
     const dragging = useRef<boolean>(false);
     
@@ -38,30 +40,37 @@ const Tab = ({tabPayload, id}: {tabPayload: Tab, id: number}) => {
     }
 
     useEffect(()=> {
-        setOpen(false)
-        
-    }, [tabs])
-    
-    useEffect(()=> {
-        // setOpen(false)
-        // console.log(open, tabPayload.tabId)
-    }, [open])
-    
-    useEffect(()=> {
-        // console.log(open, tabPayload.tabId)
-        if(dndContext.active !== null) {
-
-            dragging.current = true
-        } else {
-            console.log("drag ended")
+        if(dndContext.active && !dragging.current) {
+            dragging.current = true;
+        }
+        if(!dndContext.active && dragging.current) {
             setTimeout(() => {
-                
-                console.log("executes the shit")
-                dragging.current = false
+                dragging.current = false;
             }, 1000);
         }
-        // setOpen(false)
-    }, [dndContext.active])
+    },[dndContext.active])
+    
+    useEffect(()=> {
+        if(dndContext.active?.id === tabPayload.tabId) {
+            console.log("draggingg...")
+            if(dndContext.active !== null && dndContext.over !== null) {
+
+                if(tabs.indexOf(tabPayload) > (dndContext.active.data.current as any).id) {
+                    // if item is on the left
+                    if(!prevOver.current || (prevOver.current as any).id !== dndContext.over.id ) {
+                        prevOver.current = dndContext.over as any;
+                        dispatch(rearangeTabs({ delta: 1, placement: dndContext.over?.id.valueOf() as number, tobeMoved: dndContext.active.id.valueOf() as number}))
+                    }
+                } else {
+                    if(!prevOver.current || (prevOver.current as any).id !== dndContext.over.id ) {
+                        prevOver.current = dndContext.over as any;
+                        dispatch(rearangeTabs({ delta: -1, placement: dndContext.over?.id.valueOf() as number, tobeMoved: dndContext.active.id.valueOf() as number}))
+                    }
+                }
+            }
+        }
+
+    }, [dndContext])
     
     return (
         <>
@@ -79,9 +88,8 @@ const Tab = ({tabPayload, id}: {tabPayload: Tab, id: number}) => {
             >
                 <Tooltip onOpen={()=> {
                     if(dragging.current) setOpen(false);
-                    else if(dndContext.active === null) setOpen(true);
-                    else setOpen(false);
-                }} onClose={()=> {setOpen(false)}} open={open} title={tabPayload.tabName} key={id} disableHoverListener={dndContext.active !== null} disableFocusListener={dndContext.active !== null} enterDelay={1000} >
+                    else setOpen(true);
+                }} onClose={()=> { setOpen(false)}} open={open && !dragging.current} title={tabPayload.tabName} key={id} enterDelay={1000} >
                     <div 
                         className={`w-48 h-7 ${ tabPayload.tabId === tabActivityChain[tabActivityChain.length-1] ? "bg-primary dark:bg-d-600-lightest" : "bg-primary/50 dark:bg-d-600-lightest/50"} relative rounded-t-md flex flex-row items-center justify-between pl-2 font-thin text-sm hover:bg-primary/80 hover:dark:bg-d-600-lightest/80`} 
                     >

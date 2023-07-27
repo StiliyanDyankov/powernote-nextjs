@@ -146,8 +146,6 @@ export const appSlice = createSlice({
             const newIndex = placementIndex + (action.payload.delta > 0 ? 0 : 0);
             newArray.splice(newIndex, 0, removed);
 
-            console.log(action.payload)
-            console.log(newArray)
             state.tabs = newArray;
             // return newArray;
         },
