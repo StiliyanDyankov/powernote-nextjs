@@ -1,7 +1,11 @@
 "use client"
 import dynamic from "next/dynamic";
+import Delta from "quill-delta";
 import { useState } from "react";
 import "react-quill/dist/quill.snow.css";
+import styles from "../../styles/NoteWorkscreen.module.css"
+import { RootState } from "@/utils/store";
+import { useSelector } from "react-redux";
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
@@ -26,20 +30,28 @@ const modules = {
   };
 
 const NoteWorkscreen = () => {
-    const [value, setValue] = useState('test test test');
+    const [value, setValue] = useState<any>(()=> {
+		const def = new Delta();
+		def.insert("test test");
+		return def;
+	});
 
+	const theme = useSelector((state: RootState) => state.theme)
 
-
+	
     return (
         <div 
             // className="w-full h-full bg-primary rounded-b-lg"
         >
 			{
 				document !== undefined ? (
-					<ReactQuill 
-						theme="snow" 
+					<ReactQuill
+						theme="snow"
+						className={theme.darkTheme ? "dark": ""}
+						defaultValue={value}
 						value={value} 
 						onChange={(event, delta, source, editor) => {
+							setValue(editor.getContents())
 							console.log(event)
 							console.log(delta)
 							console.log(source)

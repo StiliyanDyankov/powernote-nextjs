@@ -18,3 +18,7 @@
         @apply font-medium dark:text-d-700-text;
     }
 }
+
+.ql-toolbar, .ql-snow {
+    border: none !important;
+}
