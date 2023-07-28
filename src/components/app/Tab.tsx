@@ -93,11 +93,15 @@ const Tab = ({tabPayload, id}: {tabPayload: Tab, id: number}) => {
                     >
                         {dndContext.active? (<DroppableArea id={tabPayload.tabId}/>):(null)}
                         <p className={` cursor-default select-none ${ tabPayload.tabId !== tabActivityChain[tabActivityChain.length-1] ? "dark:text-l-workspace-bg/70": ""}`}>{tabPayload.tabName.length > 14 ? `${tabPayload.tabName.slice(0,14)}...${tabPayload.tabId}` : tabPayload.tabName}</p>
-                        <IconButton color="secondary" sx={{ width: "1.5rem", height: "1.5rem", mr: "2px"}} onClick={(event: React.MouseEvent<HTMLButtonElement>)=> {
-                            event.stopPropagation();
-                            handleRemoveTab(tabPayload.tabId);
-                        }}>
-                            <CloseRoundedIcon style={{scale: "0.8"}} className="dark:fill-l-secondary"/>
+                        <IconButton 
+                            // color="secondary" 
+                            sx={{ width: "1.5rem", height: "1.5rem", mr: "2px"}} 
+                            onClick={(event: React.MouseEvent<HTMLButtonElement>)=> {
+                                event.stopPropagation();
+                                handleRemoveTab(tabPayload.tabId);
+                            }}
+                        >
+                            <CloseRoundedIcon style={{scale: "0.8"}} className="dark:fill-l-tools-bg/70"/>
                         </IconButton>
                     </div>
                 </Tooltip>

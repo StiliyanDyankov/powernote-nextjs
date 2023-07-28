@@ -1,10 +1,14 @@
 import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
+import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import { Workscreen, WorkscreenTypes, closeWorkscreen } from "@/utils/storeSlices/appSlice";
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { IconButton } from "@mui/material";
 import { useDispatch } from 'react-redux';
 import { useDndContext, useDraggable } from '@dnd-kit/core';
 import { useEffect } from 'react';
+import HomeWorkscreen from './HomeWorkscreen';
+import NoteWorkscreen from './NoteWorkscreen';
+import InteractWorkscreen from './InteractWorkscreen';
 
 const Workscreen = ({workscreenContext, tabId}:{workscreenContext: Workscreen, tabId: number}) => {
 
@@ -36,7 +40,13 @@ const Workscreen = ({workscreenContext, tabId}:{workscreenContext: Workscreen, t
         >
             {/* header of workscreen */}
             <div className="flex flex-row justify-between items-center rounded-t-lg px-2 h-9">
-                <div className="w-3 h-3"></div>
+                <div className="w-fit h-fit">
+                    {workscreenContext.type === WorkscreenTypes.NOTE ? (
+                        <IconButton sx={{ width: "1.5rem", height: "1.5rem"}}>
+                            <MoreVertRoundedIcon/>
+                        </IconButton>
+                    ): null}
+                </div>
                 <div 
                     className=" bg-l-secondary dark:bg-d-500-divider w-20 h-5 self-start rounded-b-md flex items-center justify-center"
                     {...listeners}
@@ -49,24 +59,26 @@ const Workscreen = ({workscreenContext, tabId}:{workscreenContext: Workscreen, t
                     }}/>
                 </div>
                 <div className="w-fit h-fit">
-                    <IconButton key={workscreenContext.id} color="secondary" sx={{ width: "1.5rem", height: "1.5rem"}}
+                    <IconButton 
+                        key={workscreenContext.id} 
+                        sx={{ width: "1.5rem", height: "1.5rem"}}
                         onClick={handleClose}
                     >
-                        <CloseRoundedIcon className=' dark:fill-l-workscreen-bg/70'/>
+                        <CloseRoundedIcon className=''/>
                     </IconButton>
                 </div>
             </div>
             
             {/* content of workscreen */}
-            <div className=' bg-primary h-full w-full rounded-b-lg'>
+            <div className=' h-full w-full rounded-b-lg flex flex-col items-center'>
                 {workscreenContext.type === WorkscreenTypes.HOME ? (
-                    <div>Home</div>
+                    <HomeWorkscreen/>
                 ): null}
                 {workscreenContext.type === WorkscreenTypes.INTERACT ? (
-                    <div>Interact</div>
+                    <InteractWorkscreen/>
                 ): null}
                 {workscreenContext.type === WorkscreenTypes.NOTE ? (
-                    <div>Note</div>
+                    <NoteWorkscreen/>
                 ): null}
             </div>
         </div>
