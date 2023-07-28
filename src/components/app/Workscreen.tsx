@@ -1,6 +1,7 @@
+"use client"
 import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
-import { Workscreen, WorkscreenTypes, closeWorkscreen } from "@/utils/storeSlices/appSlice";
+import { PossiblePositions, Workscreen, WorkscreenTypes, closeWorkscreen } from "@/utils/storeSlices/appSlice";
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { IconButton } from "@mui/material";
 import { useDispatch } from 'react-redux';
@@ -29,14 +30,18 @@ const Workscreen = ({workscreenContext, tabId}:{workscreenContext: Workscreen, t
     const dndContext = useDndContext();
 
     useEffect(()=> {
-        console.log(dndContext.active !== null);
-    }, [dndContext.measuringScheduled])
+        console.log(workscreenContext.position);
+    }, [])
 
     return ( 
         <div 
             key={workscreenContext.id} 
             style={style} 
-            className={` bg-l-tools-bg/30 dark:bg-d-300-chips/50 border border-l-divider/50 rounded-lg w-full h-full flex flex-col ${workscreenContext.position} ${dndContext.active?.id === workscreenContext.id? "z-50": ""}`}
+            className={`
+                ${workscreenContext.position === PossiblePositions.LEFT ? "col-start-1 col-end-2 row-start-1 row-end-3" : ""}
+                ${workscreenContext.position === PossiblePositions.RIGHT ? "col-start-2 col-end-3 row-start-1 row-end-3" : ""}
+                ${workscreenContext.position === PossiblePositions.FULL ? "col-start-1 col-end-3 row-start-1 row-end-3" : ""}
+                 bg-l-tools-bg/30  dark:bg-d-300-chips/50 border border-l-divider/50 rounded-lg w-full h-full flex flex-col  ${dndContext.active?.id === workscreenContext.id? "z-50": ""}`}
         >
             {/* header of workscreen */}
             <div className="flex flex-row justify-between items-center rounded-t-lg px-2 h-9">

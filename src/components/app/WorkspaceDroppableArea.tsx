@@ -1,3 +1,4 @@
+"use client"
 import { RootState } from "@/utils/store";
 import { Workscreen } from "@/utils/storeSlices/appSlice";
 import { useDndContext, useDroppable } from "@dnd-kit/core";

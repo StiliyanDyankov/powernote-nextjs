@@ -1,3 +1,4 @@
+"use client"
 import { Button, Divider, FormControl, Icon, IconButton, InputLabel, MenuItem, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
@@ -15,31 +16,30 @@ function createData(
 const rows = [
     createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
     createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Eclair', 262, 16.0, 24, 6.0),
     createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Eclair', 262, 16.0, 24, 6.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
     createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Eclair', 262, 16.0, 24, 6.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
     createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Eclair', 262, 16.0, 24, 6.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
     createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-
-
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
 ];
 
 const HomeWorkscreen = () => {
@@ -117,9 +117,9 @@ const HomeWorkscreen = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody className=" overflow-hidden max-h-96">
-                            {rows.map((row) => (
+                            {rows.map((row, i) => (
                                 <TableRow
-                                    key={row.name}
+                                    key={i}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                     className="hover:bg-primary/10"
                                 >

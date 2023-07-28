@@ -1,3 +1,4 @@
+"use client"
 import { RootState } from "@/utils/store";
 import { useDispatch, useSelector } from "react-redux";
 import Workscreen from "./Workscreen";

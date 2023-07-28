@@ -1,3 +1,4 @@
+"use client"
 import { IconButton, Tooltip } from "@mui/material";
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { useDispatch, useSelector } from "react-redux";
