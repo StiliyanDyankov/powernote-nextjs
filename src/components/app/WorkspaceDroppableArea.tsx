@@ -21,7 +21,7 @@ const WorkspaceDroppableArea = ({ workscreenAreas, firstWs }: { workscreenAreas:
                 dndContext.active !== null ? (
                     <div className="absolute w-full h-full grid grid-cols-2 grid-rows-2 overflow-hidden gap-1 p-1 box-border">
                         {currentWorkspace?.workscreens.map((ws)=> (
-                            <DroppableArea workscreenArea={ws}/>
+                            <DroppableArea workscreenArea={ws} key={ws.id}/>
                         ))}
                     </div>
                 ) : null

@@ -6,7 +6,7 @@ const NoteWorkscreen = () => {
     const [value, setValue] = useState('test test test');
     return (
         <div className="w-full h-full bg-primary rounded-b-lg">
-            <ReactQuill 
+            {/* <ReactQuill 
                 theme="snow" 
                 value={value} 
                 onChange={setValue}
@@ -26,7 +26,7 @@ const NoteWorkscreen = () => {
                         matchVisual: false,
                     }
                 }}
-            />
+            /> */}
         </div>
     );
 }
