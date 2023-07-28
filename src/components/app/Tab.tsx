@@ -52,9 +52,7 @@ const Tab = ({tabPayload, id}: {tabPayload: Tab, id: number}) => {
     
     useEffect(()=> {
         if(dndContext.active?.id === tabPayload.tabId) {
-            console.log("draggingg...")
             if(dndContext.active !== null && dndContext.over !== null) {
-
                 if(tabs.indexOf(tabPayload) > (dndContext.active.data.current as any).id) {
                     // if item is on the left
                     if(!prevOver.current || (prevOver.current as any).id !== dndContext.over.id ) {

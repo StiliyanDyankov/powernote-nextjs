@@ -6,7 +6,7 @@ import AsideBar from "./AsideBar";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../utils/store";
 import TabBar from "./TabBar";
-import WorkscreenView from "./Workscreen";
+import WorkspaceView from "./WorkspaceView";
 
 
 export interface Friend {
@@ -82,7 +82,7 @@ const AppView = () => {
                     <div className="grow flex flex-col w-full h-full">
                         <TabBar/>
                         {/* workscreen */}
-                        <WorkscreenView/>
+                        <WorkspaceView/>
                         
                         
                         

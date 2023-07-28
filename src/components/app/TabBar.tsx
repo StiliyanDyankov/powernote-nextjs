@@ -1,15 +1,12 @@
 "use client"
 import { RootState } from "@/utils/store";
-import { IconButton, Tabs, Tooltip } from "@mui/material";
+import { IconButton } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
-import { clearTabs, createNewTab, rearangeTabs, removeTab, setActiveTab } from "@/utils/storeSlices/appSlice";
-import { useEffect, useState } from "react";
-import { DndContext, PointerSensor, closestCenter, useDndContext, useSensor, useSensors } from "@dnd-kit/core";
+import { createNewTab } from "@/utils/storeSlices/appSlice";
+import { DndContext, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
 import Tab from "./Tab";
-import { restrictToParentElement, restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
+import { restrictToParentElement } from "@dnd-kit/modifiers";
 
 
 const TabBar = () => {
@@ -37,16 +34,13 @@ const TabBar = () => {
                 {/* tab container */}
                 <div className=" w-fit h-7 flex flex-row gap-2 items-end justify-start">
                     <DndContext modifiers={[restrictToParentElement]} sensors={sensors}
-                    collisionDetection={closestCenter}
-                        // onDragEnd={(event)=> {
-                        //     dispatch(rearangeTabs({ delta: event.delta.x, placement: event.over?.id.valueOf() as number, tobeMoved: event.active.id.valueOf() as number}))
-                        // }}
+                        collisionDetection={closestCenter}
                     >
                     <div className=" w-fit h-7 flex flex-row gap-2 items-end justify-start">
                         {/* tabs */}
                          {
                             tabs.map((tab, i) => 
-                            <Tab tabPayload={tab} id={i} key={i+1}/>
+                                <Tab tabPayload={tab} id={i} key={i+1}/>
                             )
                         }
                     </div>
