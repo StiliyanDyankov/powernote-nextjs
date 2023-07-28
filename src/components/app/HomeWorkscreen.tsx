@@ -2,6 +2,7 @@
 import { Button, Divider, FormControl, Icon, IconButton, InputLabel, MenuItem, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
+import { useMemo } from "react";
 
 function createData(
         name: string,
@@ -43,6 +44,10 @@ const rows = [
 ];
 
 const HomeWorkscreen = () => {
+
+    const data = useMemo(()=> rows, [rows])
+
+
     return ( 
         <div className="h-full max-w-7xl w-full rounded-b-lg p-4 flex flex-col gap-3">
             {/* home header */}
@@ -117,7 +122,7 @@ const HomeWorkscreen = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody className=" overflow-hidden max-h-96">
-                            {rows.map((row, i) => (
+                            {data.map((row, i) => (
                                 <TableRow
                                     key={i}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
