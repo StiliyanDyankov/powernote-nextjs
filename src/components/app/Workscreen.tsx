@@ -1,15 +1,17 @@
 "use client"
 import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
-import { PossiblePositions, Workscreen, WorkscreenTypes, closeWorkscreen } from "@/utils/storeSlices/appSlice";
+import { NoteContent, PossiblePositions, Workscreen, WorkscreenTypes, closeWorkscreen } from "@/utils/storeSlices/appSlice";
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { IconButton } from "@mui/material";
 import { useDispatch } from 'react-redux';
 import { useDndContext, useDraggable } from '@dnd-kit/core';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import HomeWorkscreen from './HomeWorkscreen';
 import NoteWorkscreen from './NoteWorkscreen';
 import InteractWorkscreen from './InteractWorkscreen';
+import LoopRoundedIcon from '@mui/icons-material/LoopRounded';
+import CloudDoneRoundedIcon from '@mui/icons-material/CloudDoneRounded';
 
 const Workscreen = ({workscreenContext, tabId}:{workscreenContext: Workscreen, tabId: number}) => {
 
@@ -18,6 +20,19 @@ const Workscreen = ({workscreenContext, tabId}:{workscreenContext: Workscreen, t
     const handleClose = () => {
         dispatch(closeWorkscreen({inTabId: tabId, workscreenId: workscreenContext.id}))
     }
+
+
+
+    // for note ws
+
+    const [sync, setSync] = useState<boolean>(false)
+
+	useEffect(()=> {
+		console.log("triggers on change of sync")
+		// works
+	}, [sync])
+
+    // end of for note ws
 
     const {attributes, listeners, setNodeRef, transform} = useDraggable({
         id: workscreenContext.id,
@@ -44,26 +59,51 @@ const Workscreen = ({workscreenContext, tabId}:{workscreenContext: Workscreen, t
                  bg-l-tools-bg/30  dark:bg-d-300-chips/50 border border-l-divider/50 rounded-lg w-full h-full flex flex-col  ${dndContext.active?.id === workscreenContext.id? "z-50": ""}`}
         >
             {/* header of workscreen */}
-            <div className="flex flex-row justify-between items-center rounded-t-lg px-2 h-9">
-                <div className="w-fit h-fit">
+            <div className="flex flex-row justify-between items-center rounded-t-lg px-2 h-9 relative">
+                <div className="w-fit h-fit flex flex-row justify-center gap-2 items-center text-l-utility-dark dark:text-l-tools-bg z-10">
                     {workscreenContext.type === WorkscreenTypes.NOTE ? (
-                        <IconButton sx={{ width: "1.5rem", height: "1.5rem"}}>
-                            <MoreVertRoundedIcon/>
-                        </IconButton>
+                        <>
+                            <IconButton sx={{ width: "1.5rem", height: "1.5rem"}}>
+                                <MoreVertRoundedIcon/>
+                            </IconButton>
+
+                            {/* note name */}
+                            <span className=' text-sm'>
+                                to be set when note renders
+                                {(workscreenContext.content as NoteContent).noteId}
+                            </span>
+                            
+                            <div className=' text-sm flex flex-row justify-center items-center gap-2'>
+                                <div className=" border-l border-l-divider pl-2">
+                                    {sync ?
+                                        <LoopRoundedIcon sx={{ width: "1.2rem", height: "1.2rem"}}/>
+                                        : <CloudDoneRoundedIcon sx={{ width: "1.2rem", height: "1.2rem"}}/>
+                                    }
+                                </div>
+                                <span>
+                                    {sync ? 
+                                        "Synchronising..."
+                                        : "Synchronised"
+                                    }
+                                </span>
+                            </div>
+                        </>
                     ): null}
                 </div>
-                <div 
-                    className=" bg-l-secondary dark:bg-d-500-divider w-20 h-5 self-start rounded-b-md flex items-center justify-center"
-                    {...listeners}
-                    {... attributes}
-                    ref={setNodeRef}
-                >
-                    <MoreHorizRoundedIcon sx={{
-                        scale: "1.1",
-                        fill: "white"
-                    }}/>
+                <div className=' absolute flex flex-row items-start justify-center w-full self-start z-0'>
+                    <div 
+                        className=" bg-l-secondary dark:bg-d-500-divider w-20 h-5 self-start rounded-b-md flex items-center justify-center "
+                        {...listeners}
+                        {... attributes}
+                        ref={setNodeRef}
+                        >
+                        <MoreHorizRoundedIcon sx={{
+                            scale: "1.1",
+                            fill: "white"
+                        }}/>
+                    </div>
                 </div>
-                <div className="w-fit h-fit">
+                <div className="w-fit h-fit z-10">
                     <IconButton 
                         key={workscreenContext.id} 
                         sx={{ width: "1.5rem", height: "1.5rem"}}
@@ -83,7 +123,7 @@ const Workscreen = ({workscreenContext, tabId}:{workscreenContext: Workscreen, t
                     <InteractWorkscreen/>
                 ): null}
                 {workscreenContext.type === WorkscreenTypes.NOTE ? (
-                    <NoteWorkscreen/>
+                    <NoteWorkscreen setSync={setSync} workscreenContext={workscreenContext}/>
                 ): null}
             </div>
         </div>

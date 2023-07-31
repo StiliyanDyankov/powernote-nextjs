@@ -1,4 +1,7 @@
+"use client"
+
 import { createTheme } from "@mui/material/styles";
+import { root } from "postcss";
 
 export const theme = createTheme({
     palette: {
@@ -29,7 +32,7 @@ export const lightTheme = createTheme({
     },
 });
 
-const colorsTailwind = {
+export const colorsTailwind = {
     "primary": "#90caf9",
     "l-secondary": "#003554",
     "l-utility-dark": "#00043A",

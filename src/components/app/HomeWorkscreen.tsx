@@ -146,7 +146,7 @@ const HomeWorkscreen = () => {
                         </TableBody>
                     </Table>
                 </TableContainer>
-                <div className="flex flex-row justify-around mt-2 ">
+                <div className="flex flex-row justify-around mt-2 dark:text-l-workscreen-bg">
                     <div className=" text-sm">Documents total: <span className=" font-semibold">89</span></div>
                     <div className=" text-sm">Last sync: <span className=" font-semibold">Two minutes ago</span></div>
                 </div>

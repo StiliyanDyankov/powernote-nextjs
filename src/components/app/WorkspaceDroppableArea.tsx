@@ -38,8 +38,8 @@ const DroppableArea = ({ workscreenArea }: { workscreenArea: Workscreen }) => {
         id: workscreenArea.id,
     });
     return ( 
-        <div key={workscreenArea.id + "area"} ref={setNodeRef} className={`z-40 w-full h-full rounded-lg ${workscreenArea.position} ${ isOver? `shadow-[0px_0px_10px_rgba(0,0,0,0.3)] dark:shadow-[0px_0px_10px_rgba(255,255,255,0.3)]`: null}`}>
-            <div   className={`bg-d-100-body-bg/20 w-full h-full rounded-lg ${isOver? "shadow-[inset_0px_0px_10px_rgba(0,0,0,0.3)] dark:shadow-[inset_0px_0px_10px_rgba(255,255,255,0.3)] border-2 border-primary dark:border-d-600-lightest": null} `}>
+        <div key={workscreenArea.id + "area"} ref={setNodeRef} className={`z-40 w-full h-full rounded-lg ${workscreenArea.position} ${ isOver? `shadow-[0px_0px_10px_rgba(144,202,249,1)] dark:shadow-[0px_0px_10px_rgba(255,255,255,0.3)]`: null}`}>
+            <div   className={`bg-d-100-body-bg/20 dark:bg-l-workscreen-bg/20 w-full h-full rounded-lg ${isOver? "shadow-[inset_0px_0px_10px_rgba(144,202,249,0.3)] dark:shadow-[inset_0px_0px_10px_rgba(255,255,255,0.3)] border-2 border-primary dark:border-d-600-lightest": null} `}>
             </div>
         </div>
     );

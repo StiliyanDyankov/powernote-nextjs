@@ -1,5 +1,5 @@
 "use client"
-import { Divider } from "@mui/material";
+import { Box, Divider, Modal, ThemeProvider, Typography, createTheme } from "@mui/material";
 import HomeIcon from '@mui/icons-material/Home';
 import { IconButton } from '@mui/material';
 import PsychologyIcon from '@mui/icons-material/Psychology';
@@ -8,13 +8,19 @@ import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import { useDispatch, useSelector } from "react-redux";
 import { WorkscreenTypes, createNewTab, createWorkscreen, openClosingWorkscreenModal } from "@/utils/storeSlices/appSlice";
 import { RootState } from "@/utils/store";
+import { useState } from "react";
+import NoteModal from "./NoteModal";
+import { colorsTailwind } from "@/utils/themeMUI";
 
 
 const AsideBar = () => {
 
     const chain = useSelector((state: RootState) => state.app.tabActivityChain)
+    const mode = useSelector((state: RootState) => state.theme.darkTheme);
     const currentWorkspace = useSelector((state: RootState) => state.app.tabs.find(t => t.tabId === chain[chain.length - 1]));
     const dispatch = useDispatch();
+
+    const [open, setOpen] = useState(false)
 
     const handleHomeClick = () => {
         if(currentWorkspace?.workscreens.length === 2) {
@@ -53,13 +59,70 @@ const AsideBar = () => {
         }
 
         if(currentWorkspace) {
-            dispatch(createWorkscreen({inTabId: currentWorkspace?.tabId, type: WorkscreenTypes.NOTE}))
+            // create new note
+
+            setOpen(true)
+            // dispatch(createWorkscreen({inTabId: currentWorkspace?.tabId, type: WorkscreenTypes.NOTE}))
         } else {
+            // create new note
+
             const initName = "some nofnsadfjdaslfkjasldf";
 
-            dispatch(createNewTab(initName))
+
+
+            // dispatch(createNewTab(initName))
         }
     }
+
+
+    const lightTheme = createTheme({
+        palette: {
+            primary: {
+                main: "#90caf9",
+            },
+            secondary: {
+                main: "#003554",
+            },
+        },
+        typography: {
+            fontFamily: "Quicksand,Roboto,sans-serif,Segoe UI,Arial",
+        },
+        components: {
+            MuiModal: {
+                defaultProps: {
+                    container: document.getElementById("_next") || null
+                }
+            }
+        }
+    });
+    
+    const darkTheme = createTheme({
+        palette: {
+            mode: "dark",
+            primary: {
+                main: colorsTailwind["d-500-divider"],
+            },
+            secondary: {
+                main: colorsTailwind["d-600-lightest"],
+            },
+            text: {
+                primary: "#bfc3dc"
+            }
+        },
+        typography: {
+            fontFamily: "Quicksand, Roboto,sans-serif,Segoe UI,Arial",
+        },
+        components: {
+            MuiModal: {
+                defaultProps: {
+                    container: document.getElementById("_next") || null
+                }
+            }
+        }
+    });
+
+
+
 
     return ( 
         <aside className=" flex flex-col justify-start items-center w-20 bg-l-tools-bg border-r border-r-l-divider/50 p-2 dark:bg-d-300-chips">
@@ -95,8 +158,20 @@ const AsideBar = () => {
                 </div>
 
             </div>
+
+            <ThemeProvider theme={mode ? darkTheme : lightTheme}>
+
+                <NoteModal open={open} setOpen={setOpen} currentWorkspace={currentWorkspace}/>
+            </ThemeProvider>
         </aside>
     );
 }
+
+// <div className=" w-fit h-fit bg-l-tools-bg/30  dark:bg-d-300-chips/50 border border-l-divider/50 rounded-lg flex flex-col p-4">
+//                 <div className="font-medium text-xl mb-4 dark:text-l-workscreen-bg">
+//                     some text
+//                 </div>
+
+//             </div>
  
 export default AsideBar;

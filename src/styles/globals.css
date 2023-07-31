@@ -19,6 +19,77 @@
     }
 }
 
+.quill {
+    width: 100%;
+    overflow-x: hidden;
+    min-height: 30vh;
+}
+
 .ql-toolbar, .ql-snow {
     border: none !important;
+}
+
+.ql-editor {
+    padding-inline: 40px !important;
+}
+
+.ql-editor {
+    font-size: 1.1rem;
+}
+
+.dark path.ql-stroke {
+    stroke: white;
+}
+
+.dark path.ql-fill {
+    fill: white;
+}
+
+.dark line.ql-stroke {
+    stroke: white;
+}
+
+.dark polyline.ql-stroke {
+    stroke: white;
+}
+
+.dark line {
+    stroke: white;
+}
+
+.dark rect.ql-fill {
+    fill: white;
+}
+
+.dark rect.ql-stroke {
+    stroke: white;
+}
+
+.dark .ql-picker-label {
+    color: white
+}
+
+.dark polygon.ql-stroke {
+    stroke: white;
+}
+
+.dark .ql-container {
+    color: white;
+}
+
+.ql-container {
+    width: 100%;
+    max-height: 75vh;
+
+    overflow-y: scroll;
+}
+
+.ql-editor {
+    width: 100%;
+    word-wrap: break-word;
+}
+
+.ql-editor p, span {
+    max-width: 100%;
+    word-wrap: break-word;
 }

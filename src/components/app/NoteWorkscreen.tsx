@@ -1,11 +1,14 @@
 "use client"
 import dynamic from "next/dynamic";
 import Delta from "quill-delta";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "react-quill/dist/quill.snow.css";
 import styles from "../../styles/NoteWorkscreen.module.css"
 import { RootState } from "@/utils/store";
 import { useSelector } from "react-redux";
+import Dexie, { Table } from "dexie";
+import { notesDb } from "@/utils/notesDb";
+import { Tab, Workscreen } from "@/utils/storeSlices/appSlice";
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
@@ -27,21 +30,69 @@ const modules = {
       // toggle to add extra line breaks when pasting HTML:
       matchVisual: false
     }
-  };
+};
 
-const NoteWorkscreen = () => {
+
+const NoteWorkscreen = ({ 
+		setSync,
+		workscreenContext
+	}: { 
+		setSync: (state: boolean) => void
+		workscreenContext: Workscreen
+	}) => {
+
+	// const [db, setDb] = useState<Dexie>(()=> {
+	// 	// db.version(1).stores({
+	// 	// 	notes: 'id, topics, createdAt, lastModified',
+	// 	// })
+
+	// 	console.log(db);
+
+	// 	return db;
+	// })
+
     const [value, setValue] = useState<any>(()=> {
 		const def = new Delta();
 		def.insert("test test");
 		return def;
 	});
 
+	const value2 = useRef<any>(null)
+
+	const inTimeoutBeforeWrite = useRef<boolean>(false);
+
+	// const [sync, setSync] = useState<boolean>(false)
+
+	const wrapperRef = useRef<HTMLDivElement>(null);
+
 	const theme = useSelector((state: RootState) => state.theme)
 
+	useEffect(()=> {
+		console.log(notesDb)
+	}, [])
+
+	useEffect(()=> {
+		// here we write to indexeddb
+		if(!inTimeoutBeforeWrite.current) {
+			console.log("before time",value2.current);
+			inTimeoutBeforeWrite.current = true;
+			setSync(true);
+			setTimeout(() => {
+				console.log("after time",value2.current);
+				inTimeoutBeforeWrite.current = false
+				setSync(false)
+			}, 3000);
+
+		}
+
+	}, [value])
 	
+
     return (
         <div 
-            // className="w-full h-full bg-primary rounded-b-lg"
+			id="text-editor-wrapper"
+            className="w-full h-full rounded-b-lg"
+			ref={wrapperRef}
         >
 			{
 				document !== undefined ? (
@@ -52,13 +103,12 @@ const NoteWorkscreen = () => {
 						value={value} 
 						onChange={(event, delta, source, editor) => {
 							setValue(editor.getContents())
-							console.log(event)
-							console.log(delta)
-							console.log(source)
-							console.log(editor)
+							value2.current = editor.getContents()
 						}}
-						// className=" w-96 h-96"
 						modules={modules}
+						style={{
+							width: wrapperRef.current?.offsetWidth || "auto"
+						}}
 					/>
 				): null
 			}

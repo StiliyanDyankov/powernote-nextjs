@@ -6,6 +6,7 @@ import { validateEmail } from "@/components/authPortal/EmailField";
 import { generateId } from "@/components/app/WorkspaceView";
 import _ from 'lodash';
 import { DragEndEvent } from "@dnd-kit/core";
+import Delta from "quill-delta";
 
 interface Topic {
     topicId: number;
@@ -51,7 +52,7 @@ export enum PossiblePositions {
     BOTTOM_RIGHT = "col-start-2 col-end-3 row-start-2 row-end-3"
 }
 
-interface InteractContent {
+export interface InteractContent {
     messages: Message[];
 }
 
@@ -59,14 +60,19 @@ interface Message {
 
 }
 
-interface HomeContent {
+export interface HomeContent {
     topics: Topic[];
     notes: SearchResult[];
 }
 
-interface NoteContent {
+export interface NoteContent {
     noteId: string;
-    innerText: string; // could be delta obj
+    // noteName: string;
+
+    // createdAt: number;
+    // lastModified: number;
+
+    // noteContent: Delta; // could be delta obj
 }
 
 export interface AppState {
@@ -431,7 +437,7 @@ export const appSlice = createSlice({
                         type: WorkscreenTypes.NOTE,
                         content: {
                             noteId: generateId(),
-                            innerText: ""
+                            // innerText: ""
                         }
                     })
                 }
