@@ -11,6 +11,8 @@ import { RootState } from "@/utils/store";
 import { useState } from "react";
 import NoteModal from "./NoteModal";
 import { colorsTailwind } from "@/utils/themeMUI";
+import TopicModal from "./TopicModal";
+
 
 
 const AsideBar = () => {
@@ -20,7 +22,11 @@ const AsideBar = () => {
     const currentWorkspace = useSelector((state: RootState) => state.app.tabs.find(t => t.tabId === chain[chain.length - 1]));
     const dispatch = useDispatch();
 
-    const [open, setOpen] = useState(false)
+    const [inNewTab, setInNewTab] = useState<boolean>(false);
+
+    const [openNoteModal, setOpenNoteModal] = useState(false)
+
+    const [openTopicModal, setOpenTopicModal] = useState(false)
 
     const handleHomeClick = () => {
         if(currentWorkspace?.workscreens.length === 2) {
@@ -33,7 +39,7 @@ const AsideBar = () => {
         } else {
             const initName = "some nofnsadfjdaslfkjasldf";
             
-            dispatch(createNewTab(initName))
+            dispatch(createNewTab({ tabName: initName}))
         }
     }
 
@@ -48,7 +54,7 @@ const AsideBar = () => {
         } else {
             const initName = "some nofnsadfjdaslfkjasldf";
 
-            dispatch(createNewTab(initName))
+            dispatch(createNewTab({ tabName: initName}))
         }
     }
 
@@ -60,19 +66,27 @@ const AsideBar = () => {
 
         if(currentWorkspace) {
             // create new note
-
-            setOpen(true)
-            // dispatch(createWorkscreen({inTabId: currentWorkspace?.tabId, type: WorkscreenTypes.NOTE}))
+            setInNewTab(true);
+            setOpenNoteModal(true)
         } else {
             // create new note
 
-            const initName = "some nofnsadfjdaslfkjasldf";
+            // const initName = "some nofnsadfjdaslfkjasldf";
+
+            setInNewTab(true);
+            setOpenNoteModal(true)
 
 
-
-            // dispatch(createNewTab(initName))
+            // dispatch(createNewTab({ tabName: initName}))
         }
     }
+
+    
+    const handleTopicClick = () => {
+        setOpenTopicModal(true)
+    }
+
+
 
 
     const lightTheme = createTheme({
@@ -151,7 +165,7 @@ const AsideBar = () => {
                 </div>
 
                 <div className="flex flex-col gap-0 w-fit h-fit items-center">
-                    <IconButton color="secondary">
+                    <IconButton color="secondary" onClick={handleTopicClick}>
                         <CreateNewFolderIcon style={{scale: "1.3"}}/>
                     </IconButton>
                     <p className="font-thin leading-4 dark:text-d-700-text text-center none select-none">New Topic</p>
@@ -161,7 +175,8 @@ const AsideBar = () => {
 
             <ThemeProvider theme={mode ? darkTheme : lightTheme}>
 
-                <NoteModal open={open} setOpen={setOpen} currentWorkspace={currentWorkspace}/>
+                <NoteModal open={openNoteModal} setOpen={setOpenNoteModal} currentWorkspace={currentWorkspace} createInNewTab={inNewTab}/>
+                <TopicModal open={openTopicModal} setOpen={setOpenTopicModal} />
             </ThemeProvider>
         </aside>
     );

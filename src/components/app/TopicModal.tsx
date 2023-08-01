@@ -2,114 +2,151 @@
 
 import { RootState } from "@/utils/store";
 import { colorsTailwind } from "@/utils/themeMUI";
-import { Box, Button, Chip, Divider, FormControl, IconButton, InputLabel, MenuItem, Modal, OutlinedInput, Select, SelectChangeEvent, TextField, ThemeProvider, Typography, createTheme } from "@mui/material";
+import { Box, Button, Divider, FormControl, IconButton, InputLabel, MenuItem, Modal, Select, SelectChangeEvent, TextField, ThemeProvider, Typography, createTheme } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { useEffect, useRef, useState } from "react";
-import { Topic, notesDb } from "@/utils/notesDb";
-import { Tab, WorkscreenTypes, createNewTab, createWorkscreen } from "@/utils/storeSlices/appSlice";
+import { notesDb } from "@/utils/notesDb";
+import { Tab, WorkscreenTypes, createNewTab, createWorkscreen, openTopicCreationSuccessfulModal } from "@/utils/storeSlices/appSlice";
 import { generateId } from "./WorkspaceView";
 import Delta from "quill-delta";
 // import "@/styles/globals.css";
 
+export enum TopicColors {
+    RED = "#f44336",
+    PINK = "#e91e63",
+    PURPLE = "#9c27b0",
+    DEEP_PURPLE = "#673ab7",
+    INDIGO = "#3f51b5",
+    BLUE = "#2196f3",
+    LIGHT_BLUE = "#03a9f4",
+    CYAN = "#00bcd4",
+    TEAL = "#009688",
+    GREEN = "#4caf50",
+    LIGHT_GREEN = "#8bc34a",
+    LIME = "#cddc39",
+    YELLOW = "#ffeb3b",
+    AMBER = "#ffc107",
+    ORANGE = "#ff9800",
+    DEEP_ORANGE = "#ff5722"
+}
 
+export const hexToColorName = {
+    "#f44336": "Red",
+    "#e91e63": "Pink",
+    "#9c27b0": "Purple",
+    "#673ab7": "Deep Purple",
+    "#3f51b5": "Indigo",
+    "#2196f3": "Blue",
+    "#03a9f4": "Light Blue",
+    "#00bcd4": "Cyan",
+    "#009688": "Teal",
+    "#4caf50": "Green",
+    "#8bc34a": "Light Green",
+    "#cddc39": "Lime",
+    "#ffeb3b": "Yellow",
+    "#ffc107": "Amber",
+    "#ff9800": "Orange",
+    "#ff5722": "Deep Orange"
+}
 
-const NoteModal = (
+const TopicColorsArr = [
+    "#f44336",
+    "#e91e63",
+    "#9c27b0",
+    "#673ab7",
+    "#3f51b5",
+    "#2196f3",
+    "#03a9f4",
+    "#00bcd4",
+    "#009688",
+    "#4caf50",
+    "#8bc34a",
+    "#cddc39",
+    "#ffeb3b",
+    "#ffc107",
+    "#ff9800",
+    "#ff5722",
+]
+
+const TopicModal = (
     {
         open,
         setOpen,
-        currentWorkspace,
-        createInNewTab,
     }: {
         open: boolean;
         setOpen: (state: boolean) => void;
-        currentWorkspace: Tab | undefined;
-        createInNewTab: boolean;
     }) => {
 
     const dispatch = useDispatch();
         
     const mode = useSelector((state: RootState) => state.theme.darkTheme);
     
-    const [availableTopics, setAvailableTopics] = useState<Topic[]>([])
+    // const currentNumber = useRef<number>(1)
 
-    const [noteId, setNoteId] = useState<string | null>(null)
+    const [topicId, setTopicId] = useState<string | null>(null)
     
-    const [noteName, setNoteName] = useState<string>("New Note")
+    const [topicName, setTopicName] = useState<string>("New Topic")
 
-    const [noteDescription, setNoteDescription] = useState<string>("")
-
-    const [noteTopics, setNoteTopics] = useState<string[]>([])
-
+    const [topicDescription, setTopicDescription] = useState<string>("")
+    
+    const [topicColor, setTopicColor] = useState<TopicColors>(TopicColors.BLUE);
+    
     const [operationState, setOperationState] = useState<boolean>(false);
+
+    
     
     const getCurrentNumOfDocs = async () => {
-        const numOfDocs = await notesDb.notes.count();
-        setNoteName(`New Note ${numOfDocs + 1}`)
+        const numOfTopics = await notesDb.topics.count();
+        setTopicName(`New Topic ${numOfTopics + 1}`)
+        // currentNumber.current = numOfDocs;
     }
 
-    const getAvailableTopics = async () => {
-        const availableTopics = await notesDb.topics.toArray();
-        setAvailableTopics(availableTopics);
-    }
+    
 
     useEffect(()=> {
+        setTopicName("New Topic");
         getCurrentNumOfDocs();
-        getAvailableTopics();
-        setNoteName("New Note");
-        setNoteDescription("");
-        setNoteTopics([]);
+        setTopicColor(TopicColors.BLUE);
     }, [open])
 
 
     useEffect(()=> {
-        if(operationState && noteId) {
+        if(operationState) {
+            dispatch(openTopicCreationSuccessfulModal());
             setOpen(false);
-            if(currentWorkspace) {
-                // create new note
-    
-                dispatch(createWorkscreen({inTabId: currentWorkspace?.tabId, type: WorkscreenTypes.NOTE, options: {noteId: noteId}}))
-            } else {
-                // create new note
-    
-    
-                dispatch(createNewTab({tabName: noteName, workscreen: { type: WorkscreenTypes.NOTE, content: { noteId: noteId }}}))
-            }
             setOperationState(false);
         }
 
     }, [operationState])
 
+    const handleChange = (event: SelectChangeEvent) => {
+        setTopicColor(event.target.value as TopicColors);
+    };
+
     const handleMainActionClick = () => {
-        createNewNote();
+        createNewTopic();
     }
 
-    const createNewNote = async () => {
+    const createNewTopic = async () => {
         try {
-            const id = await notesDb.notes.add({
+            const id = await notesDb.topics.add({
                 id: generateId(),
-                noteName: noteName,
-                topics: noteTopics,
-                description: noteDescription,
+                topicName: topicName,
+                description: topicDescription,
                 createdAt: Date.now(),
                 lastModified: Date.now(),
-                content: new Delta().insert("")
+                color: topicColor
             })
             if(id) {
                 setOperationState(true);
-                setNoteId(id.toString());
             }
         } catch (error) {
             console.log("error with creating note", error)
         }
     }
 
-    const handleChange = (event: SelectChangeEvent) => {
-        console.log("topic selection event", event)
-        setNoteTopics(event.target.value as unknown as string[])
-    }
-
-    return (
+    return ( 
         <Modal 
             open={open}
             onClose={()=> {
@@ -118,7 +155,7 @@ const NoteModal = (
             sx={{
                 fontFamily: "Quicksand, sans-serif"
             }}
-            >
+        >
             <Box 
                 sx={{
                     position: 'absolute',
@@ -128,7 +165,7 @@ const NoteModal = (
                     width: "fit",
                     height: "fit",
                 }}
-                >
+            >
 
                 <div 
                     className=" rounded-lg flex flex-col gap-2 p-2 w-96 h-fit border border-l-divider"
@@ -142,7 +179,7 @@ const NoteModal = (
                         <div className="w-fit h-fit flex flex-row justify-center gap-2 items-center text-l-utility-dark dark:text-l-tools-bg z-10">
                         </div>
                         <div className=" font-medium text-lg">
-                            Create New Note
+                            Create New Topic
                         </div>
                         <div className="w-fit h-fit z-10">
                             <IconButton 
@@ -162,9 +199,9 @@ const NoteModal = (
                             color="secondary"
                             label={true? "Name": ""}
                             // disabled
-                            value={noteName}
+                            value={topicName}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                setNoteName(e.target.value);
+                                setTopicName(e.target.value);
                             }}
                         />
 
@@ -175,44 +212,24 @@ const NoteModal = (
                             color="secondary"
                             label={"Description"}
                             // disabled
-                            value={noteDescription}
+                            value={topicDescription}
                             multiline
                             rows={4}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                setNoteDescription(e.target.value);
+                                setTopicDescription(e.target.value);
                             }}
                         />
 
                         <Divider />
 
                         <FormControl color="secondary" className=" ">
-                            <InputLabel id="demo-simple-select-label">Topics</InputLabel>
+                            <InputLabel id="demo-simple-select-label">Color</InputLabel>
                             <Select
                                 labelId="demo-simple-select-label"
                                 id="demo-simple-select"
-                                label="Topics"
-                                multiple
-                                // this is actually an array of topic ids
-                                value={noteTopics as unknown as string}
-                                // input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
+                                label="Color"
+                                value={topicColor}
                                 onChange={handleChange}
-                                renderValue={(selectedTopics)=> {
-                                    console.log("renderValue", selectedTopics);
-                                    // return  (<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                    //             {selectedTopics.split(",").map((topicId) => {
-                                    //                 const topic = availableTopics.find(t => t.id === topicId) as Topic;
-                                    //                 return <Chip key={topic.id} label={topic.topicName} sx={{ backgroundColor: topic.color }}/>
-                                    //             })}
-                                    //         </Box>)
-                                    return (
-                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                            {(selectedTopics as unknown as Topic[]).map((topicId) => {
-                                                const topic = availableTopics.find(t => t.id === topicId as unknown as string) as Topic;
-                                                return <Chip key={topic.id} label={topic.topicName} sx={{ backgroundColor: topic.color }}/>
-                                            })}
-                                        </Box>
-                                    )
-                                }}
                                 sx={{
                                     '& .MuiSelect-select': {
                                         display: "flex",
@@ -221,17 +238,17 @@ const NoteModal = (
                                     }
                                 }}
                             >
-                                {availableTopics.map((topic, i) => (
-                                    <MenuItem key={i} value={topic.id} className=" flex flex-row gap-2">
+                                {TopicColorsArr.map((hex, i) => (
+                                    <MenuItem key={i} value={hex} className=" flex flex-row gap-2">
                                         <div style={{
-                                            backgroundColor: topic.color,
+                                            backgroundColor: hex,
                                             borderRadius: 9999,
                                             width: "20px",
                                             height: "20px",
                                         }}>
                                         </div>
                                         <div>
-                                            {topic.topicName}
+                                            {hexToColorName[hex as TopicColors]}
                                         </div> 
                                     </MenuItem>
                                 ))}
@@ -288,4 +305,4 @@ const NoteModal = (
     );
 }
  
-export default NoteModal;
+export default TopicModal;

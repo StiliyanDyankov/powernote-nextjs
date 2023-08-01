@@ -7,8 +7,8 @@ import styles from "../../styles/NoteWorkscreen.module.css"
 import { RootState } from "@/utils/store";
 import { useSelector } from "react-redux";
 import Dexie, { Table } from "dexie";
-import { notesDb } from "@/utils/notesDb";
-import { Tab, Workscreen } from "@/utils/storeSlices/appSlice";
+import { Note, notesDb } from "@/utils/notesDb";
+import { NoteContent, Tab, Workscreen } from "@/utils/storeSlices/appSlice";
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
@@ -35,57 +35,69 @@ const modules = {
 
 const NoteWorkscreen = ({ 
 		setSync,
-		workscreenContext
+		workscreenContext,
+		currentNote
 	}: { 
 		setSync: (state: boolean) => void
-		workscreenContext: Workscreen
+		workscreenContext: Workscreen,
+		currentNote: Note | null
 	}) => {
 
-	// const [db, setDb] = useState<Dexie>(()=> {
-	// 	// db.version(1).stores({
-	// 	// 	notes: 'id, topics, createdAt, lastModified',
-	// 	// })
-
-	// 	console.log(db);
-
-	// 	return db;
-	// })
-
     const [value, setValue] = useState<any>(()=> {
-		const def = new Delta();
-		def.insert("test test");
-		return def;
+		return currentNote?.content || new Delta().insert("");
 	});
+
 
 	const value2 = useRef<any>(null)
 
 	const inTimeoutBeforeWrite = useRef<boolean>(false);
-
-	// const [sync, setSync] = useState<boolean>(false)
 
 	const wrapperRef = useRef<HTMLDivElement>(null);
 
 	const theme = useSelector((state: RootState) => state.theme)
 
 	useEffect(()=> {
-		console.log(notesDb)
+		// console.log("db", notesDb)
+		// console.log((workscreenContext.content as NoteContent).noteId);
 	}, [])
 
 	useEffect(()=> {
 		// here we write to indexeddb
-		if(!inTimeoutBeforeWrite.current) {
+		if(value2.current === null) {
+			value2.current = value
+		}
+		if(!inTimeoutBeforeWrite.current && currentNote) {
 			console.log("before time",value2.current);
+			
 			inTimeoutBeforeWrite.current = true;
 			setSync(true);
+
 			setTimeout(() => {
 				console.log("after time",value2.current);
-				inTimeoutBeforeWrite.current = false
-				setSync(false)
+				writeContents();
 			}, 3000);
+		}
+	}, [value])
+
+	const writeContents = async () => {
+		console.log("runs write", currentNote)
+		if(currentNote && currentNote.id) {
+			try {
+				const op = await notesDb.notes.update(currentNote?.id, {
+					content: value2.current
+				})
+				console.log("runs writing to db with op value", op);
+				if(op) {
+					setSync(false)
+					inTimeoutBeforeWrite.current = false
+				}
+			} catch (e) {
+				console.error(e)
+			}
 
 		}
 
-	}, [value])
+	}
 	
 
     return (
@@ -102,6 +114,7 @@ const NoteWorkscreen = ({
 						defaultValue={value}
 						value={value} 
 						onChange={(event, delta, source, editor) => {
+							console.log("runs on write handler", editor.getContents())
 							setValue(editor.getContents())
 							value2.current = editor.getContents()
 						}}

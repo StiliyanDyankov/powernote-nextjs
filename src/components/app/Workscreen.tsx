@@ -3,7 +3,7 @@ import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import { NoteContent, PossiblePositions, Workscreen, WorkscreenTypes, closeWorkscreen } from "@/utils/storeSlices/appSlice";
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-import { IconButton } from "@mui/material";
+import { IconButton, Tooltip } from "@mui/material";
 import { useDispatch } from 'react-redux';
 import { useDndContext, useDraggable } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
@@ -12,25 +12,49 @@ import NoteWorkscreen from './NoteWorkscreen';
 import InteractWorkscreen from './InteractWorkscreen';
 import LoopRoundedIcon from '@mui/icons-material/LoopRounded';
 import CloudDoneRoundedIcon from '@mui/icons-material/CloudDoneRounded';
+import { Note, notesDb } from '@/utils/notesDb';
+
 
 const Workscreen = ({workscreenContext, tabId}:{workscreenContext: Workscreen, tabId: number}) => {
-
+    
     const dispatch = useDispatch();
-
+    
     const handleClose = () => {
         dispatch(closeWorkscreen({inTabId: tabId, workscreenId: workscreenContext.id}))
     }
-
-
-
+    
+    
+    
     // for note ws
-
+    
     const [sync, setSync] = useState<boolean>(false)
 
+    const [currentNote, setCurrentNote] = useState<Note | null>(null)
+    
 	useEffect(()=> {
-		console.log("triggers on change of sync")
+        console.log("triggers on change of sync", currentNote)
+
+        if(workscreenContext.type === WorkscreenTypes.NOTE) {
+            console.log("runs fjdhsakljadss");
+            getNote();
+        }
 		// works
 	}, [sync])
+
+
+    const getNote = async () => {
+        let note = null;
+        try {
+            console.log((workscreenContext.content as NoteContent).noteId);
+            note = await notesDb.notes.get((workscreenContext.content as NoteContent).noteId);
+            if(note) {
+                console.log("current note in get", note)
+                setCurrentNote(note)
+            }
+        } catch(e) {
+            console.error("error")
+        }
+    }
 
     // end of for note ws
 
@@ -68,9 +92,18 @@ const Workscreen = ({workscreenContext, tabId}:{workscreenContext: Workscreen, t
                             </IconButton>
 
                             {/* note name */}
+
                             <span className=' text-sm'>
-                                to be set when note renders
-                                {(workscreenContext.content as NoteContent).noteId}
+                                <Tooltip title={currentNote?.noteName}>
+                                    <span className='cursor-default select-none'>
+                                        { currentNote ? 
+                                                currentNote.noteName.length > 30 ? 
+                                                    `${currentNote.noteName.slice(0,14)}...` 
+                                                    : currentNote.noteName
+                                            : ""
+                                        }
+                                    </span>
+                                </Tooltip>
                             </span>
                             
                             <div className=' text-sm flex flex-row justify-center items-center gap-2'>
@@ -123,7 +156,7 @@ const Workscreen = ({workscreenContext, tabId}:{workscreenContext: Workscreen, t
                     <InteractWorkscreen/>
                 ): null}
                 {workscreenContext.type === WorkscreenTypes.NOTE ? (
-                    <NoteWorkscreen setSync={setSync} workscreenContext={workscreenContext}/>
+                    <NoteWorkscreen setSync={setSync} workscreenContext={workscreenContext} currentNote={currentNote}/>
                 ): null}
             </div>
         </div>

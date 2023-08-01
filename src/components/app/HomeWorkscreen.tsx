@@ -1,8 +1,10 @@
 "use client"
-import { Button, Divider, FormControl, Icon, IconButton, InputLabel, MenuItem, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { Box, Button, Chip, Divider, FormControl, Icon, IconButton, InputLabel, MenuItem, Paper, Select, SelectChangeEvent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography } from "@mui/material";
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Note, Topic, notesDb } from "@/utils/notesDb";
+import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
 
 function createData(
         name: string,
@@ -47,6 +49,36 @@ const HomeWorkscreen = () => {
 
     const data = useMemo(()=> rows, [rows])
 
+    const [availableTopics, setAvailableTopics] = useState<Topic[]>([])
+
+    const [availableNotes, setAvailableNotes] = useState<Note[]>([])
+
+    const [selectedTopics, setSelectedTopics] = useState<string[]>([])
+
+
+    const getAvailableNotes = async () => {
+        const availableNotes = await notesDb.notes.toArray();
+        setAvailableNotes(availableNotes);
+    }
+
+    const getAvailableTopics = async () => {
+        const availableTopics = await notesDb.topics.toArray();
+        setAvailableTopics(availableTopics);
+    }
+
+    useEffect(()=> {
+        getAvailableNotes();
+        getAvailableTopics();
+    }, [])
+
+    useEffect(()=> {
+        console.log("available", availableNotes, availableTopics);
+    },[availableNotes, availableTopics])
+
+    const handleChange = (event: SelectChangeEvent) => {
+        console.log("topic selection event", event)
+        setSelectedTopics(event.target.value as unknown as string[])
+    }
 
     return ( 
         <div className="h-full max-w-7xl w-full rounded-b-lg p-4 flex flex-col gap-3">
@@ -92,24 +124,73 @@ const HomeWorkscreen = () => {
                     </Button>
                 </div>
                 <Divider orientation="vertical"/>
-                <FormControl color="secondary" className=" w-7/12 ">
-                    <InputLabel id="demo-simple-select-label">Filter by Topic</InputLabel>
+                <FormControl color="secondary" className=" w-7/12">
+                    <InputLabel id="demo-simple-select-label">Filter by Topics</InputLabel>
                     <Select
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
-                        label="Filter by Topic"
+                        label="Filter by Topics"
+                        multiple
+                        // this is actually an array of topic ids
+                        value={selectedTopics as unknown as string}
+                        // input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
+                        onChange={handleChange}
+                        renderValue={(selectedTopics)=> {
+                            console.log("renderValue", selectedTopics);
+                            // return  (<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                            //             {selectedTopics.split(",").map((topicId) => {
+                            //                 const topic = availableTopics.find(t => t.id === topicId) as Topic;
+                            //                 return <Chip key={topic.id} label={topic.topicName} sx={{ backgroundColor: topic.color }}/>
+                            //             })}
+                            //         </Box>)
+                            return (
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                    {(selectedTopics as unknown as Topic[]).map((topicId) => {
+                                        const topic = availableTopics.find(t => t.id === topicId as unknown as string) as Topic;
+                                        return <Chip key={topic.id} label={topic.topicName} sx={{ backgroundColor: topic.color, height: "23px" }}/>
+                                    })}
+                                </Box>
+                            )
+                        }}
+                        sx={{
+                            '& .MuiSelect-select': {
+                                display: "flex",
+                                flexDirection: "row",
+                                gap: "0.5rem"
+                            }
+                        }}
                     >
-                        <MenuItem value={10}>Ten</MenuItem>
-                        <MenuItem value={20}>Twenty</MenuItem>
-                        <MenuItem value={30}>Thirty</MenuItem>
+                        {availableTopics.map((topic, i) => (
+                            <MenuItem key={i} value={topic.id} className=" flex flex-row gap-2">
+                                <div style={{
+                                    backgroundColor: topic.color,
+                                    borderRadius: 9999,
+                                    width: "20px",
+                                    height: "20px",
+                                }}>
+                                </div>
+                                <div>
+                                    {topic.topicName}
+                                </div> 
+                            </MenuItem>
+                        ))}
                     </Select>
                 </FormControl>
             </div>
             <Divider/>
             <div className=" h-full w-full flex flex-col ">
-                <p className=" font-medium text-xl mb-4 dark:text-l-workscreen-bg">
-                    Your notes:
-                </p>
+                <div className="flex flex-row justify-between items-center mb-4">
+                    <p className=" font-medium text-xl  dark:text-l-workscreen-bg  leading-4">
+                        Your notes:
+                    </p>
+
+                        <Tooltip title={"Refresh"} >
+                        
+                            <IconButton >
+                                <RefreshRoundedIcon/>
+                            </IconButton>
+                        </Tooltip >
+                </div>
                 <TableContainer component={Paper} className=" bg-opacity-0 grow h-full oveflow-scroll " sx={{bgcolor:"rgba(0,0,0,0)", boxShadow: "none", maxHeight: "65vh"}}>
                     <Table stickyHeader sx={{ minWidth: 450, bgcolor: "rgba(0,0,0,0)" }} aria-label="simple table"  className=" max-h-96 overflow-scroll">
                         <TableHead className="">

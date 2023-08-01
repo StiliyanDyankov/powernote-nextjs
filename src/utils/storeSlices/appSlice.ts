@@ -76,8 +76,9 @@ export interface NoteContent {
 }
 
 export interface AppState {
-    closeWorkscreenModal: boolean,
-    counterForTabs: number,
+    closeWorkscreenModal: boolean;
+    topicCreationSuccessfulModal: boolean;
+    counterForTabs: number;
     searchString: string;
     searchResults: SearchResult[];
     tabs: Tab[];
@@ -92,6 +93,7 @@ export const persistConfig: PersistConfig<AppState> = {
 
 const initialState: AppState = {
     closeWorkscreenModal: false,
+    topicCreationSuccessfulModal: true,
     counterForTabs: 0,
     searchString: "",
     searchResults: [],
@@ -332,20 +334,34 @@ export const appSlice = createSlice({
         clearSearchString: (state) => {
             state.searchString = "";
         },
-        createNewTab: (state, action: PayloadAction<string>) => {
-            state.tabs.push({
-                tabId: state.counterForTabs,
-                tabName: action.payload,
-                workscreens: [{
-                    id: generateId(),
-                    position: PossiblePositions.FULL,
-                    type: WorkscreenTypes.HOME,
-                    content: {
-                        topics: [],
-                        notes: []
-                    }
-                }]
-            })
+        createNewTab: (state, action: PayloadAction<{tabName: string, workscreen?: { type: WorkscreenTypes, content: HomeContent | NoteContent | InteractContent }}>) => {
+            if(action.payload.workscreen) {
+                state.tabs.push({
+                    tabId: state.counterForTabs,
+                    tabName: action.payload.tabName,
+                    workscreens: [{
+                        id: generateId(),
+                        position: PossiblePositions.FULL,
+                        type: action.payload.workscreen.type,
+                        content: action.payload.workscreen.content
+                    }]
+                })
+            } else {
+                state.tabs.push({
+                    tabId: state.counterForTabs,
+                    tabName: action.payload.tabName,
+                    workscreens: [{
+                        id: generateId(),
+                        position: PossiblePositions.FULL,
+                        type: WorkscreenTypes.HOME,
+                        content: {
+                            topics: [],
+                            notes: []
+                        }
+                    }]
+                })
+            }
+            
             state.tabActivityChain.push(state.counterForTabs);
             state.tabActivityChain = cleanChain(state.tabActivityChain);
 
@@ -390,6 +406,12 @@ export const appSlice = createSlice({
         closeClosingWorkscreenModal: (state) => {
             state.closeWorkscreenModal = false;
         },
+        openTopicCreationSuccessfulModal: (state) => {
+            state.topicCreationSuccessfulModal = true;
+        },
+        closeTopicCreationSuccessfulModal: (state) => {
+            state.topicCreationSuccessfulModal = false;
+        },
         closeWorkscreen: (state, action: PayloadAction<{inTabId: number, workscreenId: string}>) => {
             const targetTab = state.tabs.find(t => t.tabId === action.payload.inTabId);
 
@@ -431,15 +453,17 @@ export const appSlice = createSlice({
                     })
                 }
                 if(action.payload.type === WorkscreenTypes.NOTE) {
-                    targetTab?.workscreens.push({
-                        id: generateId(),
-                        position: placeHere,
-                        type: WorkscreenTypes.NOTE,
-                        content: {
-                            noteId: generateId(),
-                            // innerText: ""
-                        }
-                    })
+                    if(action.payload.options && (action.payload.options as NoteContent).noteId) {
+
+                        targetTab?.workscreens.push({
+                            id: generateId(),
+                            position: placeHere,
+                            type: WorkscreenTypes.NOTE,
+                            content: {
+                                noteId: (action.payload.options as NoteContent).noteId,
+                            }
+                        });
+                    }
                 }
             }
         },
@@ -478,7 +502,9 @@ export const {
     createWorkscreen, 
     openClosingWorkscreenModal, 
     closeClosingWorkscreenModal,
-    rearangeWorkscreens
+    rearangeWorkscreens,
+    openTopicCreationSuccessfulModal,
+    closeTopicCreationSuccessfulModal,
 } = appSlice.actions;
 
 const persistedReducer = persistReducer(persistConfig, appSlice.reducer);
