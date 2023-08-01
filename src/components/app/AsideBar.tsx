@@ -70,14 +70,8 @@ const AsideBar = () => {
             setOpenNoteModal(true)
         } else {
             // create new note
-
-            // const initName = "some nofnsadfjdaslfkjasldf";
-
             setInNewTab(true);
             setOpenNoteModal(true)
-
-
-            // dispatch(createNewTab({ tabName: initName}))
         }
     }
 

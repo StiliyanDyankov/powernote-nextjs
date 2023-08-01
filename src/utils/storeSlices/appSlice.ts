@@ -61,8 +61,9 @@ interface Message {
 }
 
 export interface HomeContent {
-    topics: Topic[];
+    selectedTopics: string[];
     notes: SearchResult[];
+    scrollNoteList: number;
 }
 
 export interface NoteContent {
@@ -355,8 +356,9 @@ export const appSlice = createSlice({
                         position: PossiblePositions.FULL,
                         type: WorkscreenTypes.HOME,
                         content: {
-                            topics: [],
-                            notes: []
+                            selectedTopics: [],
+                            notes: [],
+                            scrollNoteList: 0
                         }
                     }]
                 })
@@ -437,8 +439,9 @@ export const appSlice = createSlice({
                         position: placeHere,
                         type: WorkscreenTypes.HOME,
                         content: {
-                            topics: [],
-                            notes: []
+                            selectedTopics: [],
+                            notes: [],
+                            scrollNoteList: 0
                         }
                     })
                 }
@@ -486,6 +489,13 @@ export const appSlice = createSlice({
                 }
                 console.log(action.payload);
             }
+        },
+        setSelectedTopicsHome: (state, action: PayloadAction<{ inTabId: number, workscreenId: string, newValue: string[] }>) => {
+            const targetTab = state.tabs.find(t => t.tabId === action.payload.inTabId);
+
+            const targetWs = targetTab?.workscreens.find(ws => ws.id === action.payload.workscreenId);
+
+            (targetWs?.content as HomeContent).selectedTopics = action.payload.newValue;
         }
     },
 });
@@ -505,6 +515,7 @@ export const {
     rearangeWorkscreens,
     openTopicCreationSuccessfulModal,
     closeTopicCreationSuccessfulModal,
+    setSelectedTopicsHome
 } = appSlice.actions;
 
 const persistedReducer = persistReducer(persistConfig, appSlice.reducer);

@@ -45,7 +45,7 @@ const WorkspaceView = () => {
     }
 
     return (
-        <div className=" overflow-hidden w-full h-full">
+        <div className=" overflow-hidden w-full h-full" key={currentWorkspace?.tabId}>
 
         <div className=" overflow-scroll w-full h-full">
 

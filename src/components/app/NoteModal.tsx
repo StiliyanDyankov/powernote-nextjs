@@ -10,6 +10,7 @@ import { Topic, notesDb } from "@/utils/notesDb";
 import { Tab, WorkscreenTypes, createNewTab, createWorkscreen } from "@/utils/storeSlices/appSlice";
 import { generateId } from "./WorkspaceView";
 import Delta from "quill-delta";
+import TopicSelector from "./TopicSelector";
 // import "@/styles/globals.css";
 
 
@@ -72,7 +73,6 @@ const NoteModal = (
             } else {
                 // create new note
     
-    
                 dispatch(createNewTab({tabName: noteName, workscreen: { type: WorkscreenTypes.NOTE, content: { noteId: noteId }}}))
             }
             setOperationState(false);
@@ -104,10 +104,10 @@ const NoteModal = (
         }
     }
 
-    const handleChange = (event: SelectChangeEvent) => {
-        console.log("topic selection event", event)
-        setNoteTopics(event.target.value as unknown as string[])
-    }
+    // const handleChange = (event: SelectChangeEvent) => {
+    //     console.log("topic selection event", event)
+    //     setNoteTopics(event.target.value as unknown as string[])
+    // }
 
     return (
         <Modal 
@@ -185,58 +185,7 @@ const NoteModal = (
 
                         <Divider />
 
-                        <FormControl color="secondary" className=" ">
-                            <InputLabel id="demo-simple-select-label">Topics</InputLabel>
-                            <Select
-                                labelId="demo-simple-select-label"
-                                id="demo-simple-select"
-                                label="Topics"
-                                multiple
-                                // this is actually an array of topic ids
-                                value={noteTopics as unknown as string}
-                                // input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
-                                onChange={handleChange}
-                                renderValue={(selectedTopics)=> {
-                                    console.log("renderValue", selectedTopics);
-                                    // return  (<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                    //             {selectedTopics.split(",").map((topicId) => {
-                                    //                 const topic = availableTopics.find(t => t.id === topicId) as Topic;
-                                    //                 return <Chip key={topic.id} label={topic.topicName} sx={{ backgroundColor: topic.color }}/>
-                                    //             })}
-                                    //         </Box>)
-                                    return (
-                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                            {(selectedTopics as unknown as Topic[]).map((topicId) => {
-                                                const topic = availableTopics.find(t => t.id === topicId as unknown as string) as Topic;
-                                                return <Chip key={topic.id} label={topic.topicName} sx={{ backgroundColor: topic.color }}/>
-                                            })}
-                                        </Box>
-                                    )
-                                }}
-                                sx={{
-                                    '& .MuiSelect-select': {
-                                        display: "flex",
-                                        flexDirection: "row",
-                                        gap: "0.5rem"
-                                    }
-                                }}
-                            >
-                                {availableTopics.map((topic, i) => (
-                                    <MenuItem key={i} value={topic.id} className=" flex flex-row gap-2">
-                                        <div style={{
-                                            backgroundColor: topic.color,
-                                            borderRadius: 9999,
-                                            width: "20px",
-                                            height: "20px",
-                                        }}>
-                                        </div>
-                                        <div>
-                                            {topic.topicName}
-                                        </div> 
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>  
+                        <TopicSelector selectedTopics={noteTopics} setSelectedTopics={setNoteTopics} />
 
                         {/* <div className="font-medium text-xl mb-4 dark:text-l-workscreen-bg">
                             some text

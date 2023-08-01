@@ -15,7 +15,7 @@ import CloudDoneRoundedIcon from '@mui/icons-material/CloudDoneRounded';
 import { Note, notesDb } from '@/utils/notesDb';
 
 
-const Workscreen = ({workscreenContext, tabId}:{workscreenContext: Workscreen, tabId: number}) => {
+const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscreen, tabId: number }) => {
     
     const dispatch = useDispatch();
     
@@ -23,11 +23,9 @@ const Workscreen = ({workscreenContext, tabId}:{workscreenContext: Workscreen, t
         dispatch(closeWorkscreen({inTabId: tabId, workscreenId: workscreenContext.id}))
     }
     
-    
-    
     // for note ws
     
-    const [sync, setSync] = useState<boolean>(false)
+    const [sync, setSync] = useState<boolean>(true)
 
     const [currentNote, setCurrentNote] = useState<Note | null>(null)
     
@@ -150,7 +148,7 @@ const Workscreen = ({workscreenContext, tabId}:{workscreenContext: Workscreen, t
             {/* content of workscreen */}
             <div className=' h-full w-full rounded-b-lg flex flex-col items-center'>
                 {workscreenContext.type === WorkscreenTypes.HOME ? (
-                    <HomeWorkscreen/>
+                    <HomeWorkscreen tabId={tabId} workscreenContext={workscreenContext}/>
                 ): null}
                 {workscreenContext.type === WorkscreenTypes.INTERACT ? (
                     <InteractWorkscreen/>

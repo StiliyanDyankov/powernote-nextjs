@@ -43,9 +43,7 @@ const NoteWorkscreen = ({
 		currentNote: Note | null
 	}) => {
 
-    const [value, setValue] = useState<any>(()=> {
-		return currentNote?.content || new Delta().insert("");
-	});
+    const [value, setValue] = useState<any>(null);
 
 
 	const value2 = useRef<any>(null)
@@ -57,25 +55,32 @@ const NoteWorkscreen = ({
 	const theme = useSelector((state: RootState) => state.theme)
 
 	useEffect(()=> {
+		console.log("Current note", currentNote)
+		if(currentNote && value === null) {
+			setValue(currentNote.content);
+		}
 		// console.log("db", notesDb)
 		// console.log((workscreenContext.content as NoteContent).noteId);
-	}, [])
+	}, [currentNote])
 
 	useEffect(()=> {
 		// here we write to indexeddb
-		if(value2.current === null) {
-			value2.current = value
-		}
-		if(!inTimeoutBeforeWrite.current && currentNote) {
-			console.log("before time",value2.current);
-			
-			inTimeoutBeforeWrite.current = true;
-			setSync(true);
+		if(value !== null) {
 
-			setTimeout(() => {
-				console.log("after time",value2.current);
-				writeContents();
-			}, 3000);
+			if(value2.current === null) {
+				value2.current = value
+			}
+			if(!inTimeoutBeforeWrite.current && currentNote) {
+				console.log("before time",value2.current);
+				
+				inTimeoutBeforeWrite.current = true;
+				setSync(true);
+
+				setTimeout(() => {
+					console.log("after time",value2.current);
+					writeContents();
+				}, 3000);
+			}
 		}
 	}, [value])
 
