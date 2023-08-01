@@ -16,7 +16,7 @@ const TabBar = () => {
     const handleCreateNewTab = () => {
         const initName = "some nofnsadfjdaslfkjasldf";
 
-        dispatch(createNewTab(initName))
+        dispatch(createNewTab({tabName: initName}))
     }
 
     const sensors = useSensors(

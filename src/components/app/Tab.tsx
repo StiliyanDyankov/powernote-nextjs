@@ -93,7 +93,7 @@ const Tab = ({tabPayload, id}: {tabPayload: Tab, id: number}) => {
                         className={`w-48 h-7 ${ tabPayload.tabId === tabActivityChain[tabActivityChain.length-1] ? "bg-primary dark:bg-d-600-lightest" : "bg-primary/50 dark:bg-d-600-lightest/50"} relative rounded-t-md flex flex-row items-center justify-between pl-2 font-thin text-sm hover:bg-primary/80 hover:dark:bg-d-600-lightest/80`} 
                     >
                         {dndContext.active? (<DroppableArea id={tabPayload.tabId}/>):(null)}
-                        <p className={` cursor-default select-none dark:text-l-workspace-bg/70`}>{tabPayload.tabName.length > 14 ? `${tabPayload.tabName.slice(0,14)}...${tabPayload.tabId}` : tabPayload.tabName}</p>
+                        <p className={` cursor-default select-none dark:text-l-workspace-bg/70`}>{ tabPayload && tabPayload.tabName.length > 14 ? `${tabPayload.tabName.slice(0,14)}...${tabPayload.tabId}` : tabPayload.tabName}</p>
                         <IconButton 
                             // color="secondary" 
                             sx={{ width: "1.5rem", height: "1.5rem", mr: "2px"}} 
