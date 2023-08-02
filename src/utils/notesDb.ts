@@ -7,8 +7,8 @@ export interface Note {
     topics: string[];
     description: string;
     createdAt: number;
-	lastModified: number;
-	content: Delta;
+    lastModified: number;
+    content: Delta;
 }
 
 export interface Topic {
@@ -21,15 +21,15 @@ export interface Topic {
 }
 
 export class NotesDexie extends Dexie {
-// 'friends' is added by dexie when declaring the stores()
-// We just tell the typing system this is the case
+    // 'friends' is added by dexie when declaring the stores()
+    // We just tell the typing system this is the case
     notes!: Table<Note>;
     topics!: Table<Topic>;
 
     constructor() {
         super('krisinote');
         this.version(2).stores({
-			notes: 'id, noteName, topics, description, createdAt, lastModified', // Primary key and indexed props
+            notes: 'id, noteName, topics, description, createdAt, lastModified', // Primary key and indexed props
             topics: 'id, topicName, description, createdAt, lastModified, color'
         });
     }

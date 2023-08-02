@@ -31,7 +31,7 @@ export enum TopicColors {
     DEEP_ORANGE = "#ff5722"
 }
 
-export const hexToColorName = {
+export const hexToColorName: { [key: string]: string } = {
     "#f44336": "Red",
     "#e91e63": "Pink",
     "#9c27b0": "Purple",

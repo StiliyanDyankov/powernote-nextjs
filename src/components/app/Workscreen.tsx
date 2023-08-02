@@ -16,28 +16,28 @@ import { Note, notesDb } from '@/utils/notesDb';
 
 
 const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscreen, tabId: number }) => {
-    
+
     const dispatch = useDispatch();
-    
+
     const handleClose = () => {
-        dispatch(closeWorkscreen({inTabId: tabId, workscreenId: workscreenContext.id}))
+        dispatch(closeWorkscreen({ inTabId: tabId, workscreenId: workscreenContext.id }))
     }
-    
+
     // for note ws
-    
+
     const [sync, setSync] = useState<boolean>(true)
 
     const [currentNote, setCurrentNote] = useState<Note | null>(null)
-    
-	useEffect(()=> {
+
+    useEffect(() => {
         console.log("triggers on change of sync", currentNote)
 
-        if(workscreenContext.type === WorkscreenTypes.NOTE) {
+        if (workscreenContext.type === WorkscreenTypes.NOTE) {
             console.log("runs fjdhsakljadss");
             getNote();
         }
-		// works
-	}, [sync])
+        // works
+    }, [sync])
 
 
     const getNote = async () => {
@@ -45,48 +45,48 @@ const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscree
         try {
             console.log((workscreenContext.content as NoteContent).noteId);
             note = await notesDb.notes.get((workscreenContext.content as NoteContent).noteId);
-            if(note) {
+            if (note) {
                 console.log("current note in get", note)
                 setCurrentNote(note)
             }
-        } catch(e) {
+        } catch (e) {
             console.error("error")
         }
     }
 
     // end of for note ws
 
-    const {attributes, listeners, setNodeRef, transform} = useDraggable({
+    const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: workscreenContext.id,
     });
 
     const style = transform ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-      } : undefined;
+    } : undefined;
 
     const dndContext = useDndContext();
 
-    useEffect(()=> {
+    useEffect(() => {
         console.log(workscreenContext.position);
     }, [])
 
-    return ( 
-        <div 
-            key={workscreenContext.id} 
-            style={style} 
+    return (
+        <div
+            key={workscreenContext.id}
+            style={style}
             className={`
                 ${workscreenContext.position === PossiblePositions.LEFT ? "col-start-1 col-end-2 row-start-1 row-end-3" : ""}
                 ${workscreenContext.position === PossiblePositions.RIGHT ? "col-start-2 col-end-3 row-start-1 row-end-3" : ""}
                 ${workscreenContext.position === PossiblePositions.FULL ? "col-start-1 col-end-3 row-start-1 row-end-3" : ""}
-                 bg-l-tools-bg/30  dark:bg-d-300-chips/50 border border-l-divider/50 rounded-lg w-full h-full flex flex-col  ${dndContext.active?.id === workscreenContext.id? "z-50": ""}`}
+                 bg-l-tools-bg/30  dark:bg-d-300-chips/50 border border-l-divider/50 rounded-lg w-full h-full flex flex-col  ${dndContext.active?.id === workscreenContext.id ? "z-50" : ""}`}
         >
             {/* header of workscreen */}
             <div className="flex flex-row justify-between items-center rounded-t-lg px-2 h-9 relative">
                 <div className="w-fit h-fit flex flex-row justify-center gap-2 items-center text-l-utility-dark dark:text-l-tools-bg z-10">
                     {workscreenContext.type === WorkscreenTypes.NOTE ? (
                         <>
-                            <IconButton sx={{ width: "1.5rem", height: "1.5rem"}}>
-                                <MoreVertRoundedIcon/>
+                            <IconButton sx={{ width: "1.5rem", height: "1.5rem" }}>
+                                <MoreVertRoundedIcon />
                             </IconButton>
 
                             {/* note name */}
@@ -94,71 +94,71 @@ const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscree
                             <span className=' text-sm'>
                                 <Tooltip title={currentNote?.noteName}>
                                     <span className='cursor-default select-none'>
-                                        { currentNote ? 
-                                                currentNote.noteName.length > 30 ? 
-                                                    `${currentNote.noteName.slice(0,14)}...` 
-                                                    : currentNote.noteName
+                                        {currentNote ?
+                                            currentNote.noteName.length > 30 ?
+                                                `${currentNote.noteName.slice(0, 14)}...`
+                                                : currentNote.noteName
                                             : ""
                                         }
                                     </span>
                                 </Tooltip>
                             </span>
-                            
+
                             <div className=' text-sm flex flex-row justify-center items-center gap-2'>
                                 <div className=" border-l border-l-divider pl-2">
                                     {sync ?
-                                        <LoopRoundedIcon sx={{ width: "1.2rem", height: "1.2rem"}}/>
-                                        : <CloudDoneRoundedIcon sx={{ width: "1.2rem", height: "1.2rem"}}/>
+                                        <LoopRoundedIcon sx={{ width: "1.2rem", height: "1.2rem" }} />
+                                        : <CloudDoneRoundedIcon sx={{ width: "1.2rem", height: "1.2rem" }} />
                                     }
                                 </div>
                                 <span>
-                                    {sync ? 
+                                    {sync ?
                                         "Synchronising..."
                                         : "Synchronised"
                                     }
                                 </span>
                             </div>
                         </>
-                    ): null}
+                    ) : null}
                 </div>
                 <div className=' absolute flex flex-row items-start justify-center w-full self-start z-0'>
-                    <div 
+                    <div
                         className=" bg-l-secondary dark:bg-d-500-divider w-20 h-5 self-start rounded-b-md flex items-center justify-center "
                         {...listeners}
-                        {... attributes}
+                        {...attributes}
                         ref={setNodeRef}
-                        >
+                    >
                         <MoreHorizRoundedIcon sx={{
                             scale: "1.1",
                             fill: "white"
-                        }}/>
+                        }} />
                     </div>
                 </div>
                 <div className="w-fit h-fit z-10">
-                    <IconButton 
-                        key={workscreenContext.id} 
-                        sx={{ width: "1.5rem", height: "1.5rem"}}
+                    <IconButton
+                        key={workscreenContext.id}
+                        sx={{ width: "1.5rem", height: "1.5rem" }}
                         onClick={handleClose}
                     >
-                        <CloseRoundedIcon className=''/>
+                        <CloseRoundedIcon className='' />
                     </IconButton>
                 </div>
             </div>
-            
+
             {/* content of workscreen */}
             <div className=' h-full w-full rounded-b-lg flex flex-col items-center'>
                 {workscreenContext.type === WorkscreenTypes.HOME ? (
-                    <HomeWorkscreen tabId={tabId} workscreenContext={workscreenContext}/>
-                ): null}
+                    <HomeWorkscreen tabId={tabId} workscreenContext={workscreenContext} />
+                ) : null}
                 {workscreenContext.type === WorkscreenTypes.INTERACT ? (
-                    <InteractWorkscreen/>
-                ): null}
+                    <InteractWorkscreen />
+                ) : null}
                 {workscreenContext.type === WorkscreenTypes.NOTE ? (
-                    <NoteWorkscreen setSync={setSync} workscreenContext={workscreenContext} currentNote={currentNote}/>
-                ): null}
+                    <NoteWorkscreen setSync={setSync} workscreenContext={workscreenContext} currentNote={currentNote} />
+                ) : null}
             </div>
         </div>
     );
 }
- 
+
 export default Workscreen;

@@ -21,6 +21,11 @@ interface SearchResult {
     content: string;
 }
 
+export enum TableTabStates {
+    NOTES = "NOTES",
+    TOPICS = "TOPICS"
+}
+
 export interface Tab {
     tabId: number;
 	tabName: string;
@@ -61,6 +66,7 @@ interface Message {
 }
 
 export interface HomeContent {
+    selectedTableTab: TableTabStates;
     selectedTopics: string[];
     notes: SearchResult[];
     scrollNoteList: number;
@@ -356,6 +362,7 @@ export const appSlice = createSlice({
                         position: PossiblePositions.FULL,
                         type: WorkscreenTypes.HOME,
                         content: {
+                            selectedTableTab: TableTabStates.NOTES,
                             selectedTopics: [],
                             notes: [],
                             scrollNoteList: 0
@@ -439,6 +446,7 @@ export const appSlice = createSlice({
                         position: placeHere,
                         type: WorkscreenTypes.HOME,
                         content: {
+                            selectedTableTab: TableTabStates.NOTES,
                             selectedTopics: [],
                             notes: [],
                             scrollNoteList: 0
@@ -496,6 +504,13 @@ export const appSlice = createSlice({
             const targetWs = targetTab?.workscreens.find(ws => ws.id === action.payload.workscreenId);
 
             (targetWs?.content as HomeContent).selectedTopics = action.payload.newValue;
+        },
+        setSelectedTableTabHome: (state, action: PayloadAction<{ inTabId: number, workscreenId: string, newValue: TableTabStates }>) => {
+            const targetTab = state.tabs.find(t => t.tabId === action.payload.inTabId);
+
+            const targetWs = targetTab?.workscreens.find(ws => ws.id === action.payload.workscreenId);
+
+            (targetWs?.content as HomeContent).selectedTableTab = action.payload.newValue;
         }
     },
 });
@@ -515,7 +530,8 @@ export const {
     rearangeWorkscreens,
     openTopicCreationSuccessfulModal,
     closeTopicCreationSuccessfulModal,
-    setSelectedTopicsHome
+    setSelectedTopicsHome,
+    setSelectedTableTabHome
 } = appSlice.actions;
 
 const persistedReducer = persistReducer(persistConfig, appSlice.reducer);
