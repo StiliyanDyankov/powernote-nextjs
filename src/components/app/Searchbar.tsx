@@ -36,8 +36,6 @@ interface DisplaySearchResNote {
     content?: string;
 }
 
-
-
 interface SearchResult extends Array<ResElementFirstClass> { };
 
 const Searchbar = () => {

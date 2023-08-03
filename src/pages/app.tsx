@@ -5,7 +5,6 @@ import InitialLoader from "@/components/app/InitialLoader";
 import gsap from "gsap";
 import AppView from "@/components/app/AppView";
 import { notesDb } from "@/utils/notesDb";
-import { dummyData } from "@/utils/MOCK_DATA";
 import Delta from "quill-delta";
 import { generateId } from "@/components/app/WorkspaceView";
 // import { Document as TDocument } from "flexsearch";

@@ -233,7 +233,7 @@ const TopicModal = (
             sx={{
                 fontFamily: "Quicksand, sans-serif"
             }}
-            key={editTopicId || Math.random() * 10000}
+            key={editTopicId || topicId}
         >
             <Box
                 sx={{
@@ -306,7 +306,7 @@ const TopicModal = (
                         </div>
                         <div className=" font-medium text-lg">
                             {
-                                modalState === ModalStates.CREATE ? "Create New Note" : topicName
+                                modalState === ModalStates.CREATE ? "Create New Topic" : topicName
                             }
                         </div>
                         <div className="w-fit h-fit z-10">
@@ -410,7 +410,6 @@ const TopicModal = (
                                         color="secondary"
                                         disableElevation
                                         onClick={handleMainActionClick}
-                                        autoFocus
                                     >
                                         <span
                                             style={{

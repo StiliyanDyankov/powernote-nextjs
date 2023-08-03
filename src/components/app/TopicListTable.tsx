@@ -77,7 +77,7 @@ const TopicListTable = ({
                 <div className=" text-sm">Last sync: <span className=" font-semibold">Two minutes ago</span></div>
             </div>
             <ThemeProvider theme={mode ? darkTheme : lightTheme}>
-                <TopicModal open={openTopicModal} setOpen={setOpenTopicModal} key={Math.random() * 100000} initialState={ModalStates.INFO} editTopicId={modalOpenFor as string} />
+                <TopicModal open={openTopicModal} setOpen={setOpenTopicModal} initialState={ModalStates.INFO} editTopicId={modalOpenFor as string} />
             </ThemeProvider>
         </div>
     );
