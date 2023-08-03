@@ -1,4 +1,6 @@
-import { Topic, notesDb } from "@/utils/notesDb";
+"use client"
+
+import { Topic, notesDb } from "@/utils/notesDb"; 
 import { Box, Chip, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import { useEffect, useState } from "react";
 

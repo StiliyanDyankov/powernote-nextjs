@@ -1,3 +1,4 @@
+"use client"
 import Dexie, { Table } from "dexie";
 import Delta from "quill-delta";
 
