@@ -3,8 +3,8 @@ import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import { NoteContent, PossiblePositions, Workscreen, WorkscreenTypes, closeWorkscreen } from "@/utils/storeSlices/appSlice";
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-import { IconButton, Tooltip } from "@mui/material";
-import { useDispatch } from 'react-redux';
+import { IconButton, ThemeProvider, Tooltip } from "@mui/material";
+import { useDispatch, useSelector } from 'react-redux';
 import { useDndContext, useDraggable } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
 import HomeWorkscreen from './HomeWorkscreen';
@@ -13,6 +13,9 @@ import InteractWorkscreen from './InteractWorkscreen';
 import LoopRoundedIcon from '@mui/icons-material/LoopRounded';
 import CloudDoneRoundedIcon from '@mui/icons-material/CloudDoneRounded';
 import { Note, notesDb } from '@/utils/notesDb';
+import { RootState } from '@/utils/store';
+import { darkTheme, lightTheme } from '@/utils/themeMUI';
+import NoteModal, { ModalStates } from './NoteModal';
 
 
 const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscreen, tabId: number }) => {
@@ -23,11 +26,16 @@ const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscree
         dispatch(closeWorkscreen({ inTabId: tabId, workscreenId: workscreenContext.id }))
     }
 
+    const [openNoteModal, setOpenNoteModal] = useState<boolean>(false);
+    const mode = useSelector((state: RootState) => state.theme.darkTheme);
+
     // for note ws
 
     const [sync, setSync] = useState<boolean>(true)
 
     const [currentNote, setCurrentNote] = useState<Note | null>(null)
+    
+    const syncState = useSelector((state: RootState) => state.app.flexsearchSync)
 
     useEffect(() => {
         console.log("triggers on change of sync", currentNote)
@@ -38,6 +46,17 @@ const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscree
         }
         // works
     }, [sync])
+    
+    // useEffect(()=> {
+    //     if (workscreenContext.type === WorkscreenTypes.NOTE && !syncState) {
+    //         console.log("runs fjdhsakljadss");
+    //         getNote();
+    //     }
+    // }, [syncState])
+
+    // useEffect(()=> {
+
+    // }, [])
 
 
     const getNote = async () => {
@@ -85,9 +104,13 @@ const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscree
                 <div className="w-fit h-fit flex flex-row justify-center gap-2 items-center text-l-utility-dark dark:text-l-tools-bg z-10">
                     {workscreenContext.type === WorkscreenTypes.NOTE ? (
                         <>
-                            <IconButton sx={{ width: "1.5rem", height: "1.5rem" }}>
-                                <MoreVertRoundedIcon />
-                            </IconButton>
+                            <Tooltip title={"Edit Note"}>
+                                <IconButton sx={{ width: "1.5rem", height: "1.5rem" }} onClick={() => {
+                                    setOpenNoteModal(true);
+                                }}>
+                                    <MoreVertRoundedIcon />
+                                </IconButton>
+                            </Tooltip>
 
                             {/* note name */}
 
@@ -157,6 +180,11 @@ const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscree
                     <NoteWorkscreen setSync={setSync} workscreenContext={workscreenContext} currentNote={currentNote} />
                 ) : null}
             </div>
+            {workscreenContext.type === WorkscreenTypes.NOTE ? (
+                <ThemeProvider theme={mode ? darkTheme : lightTheme}>
+                    <NoteModal open={openNoteModal} setOpen={setOpenNoteModal} initialState={ModalStates.INFO} editNoteId={currentNote?.id} />
+                </ThemeProvider>
+            ) : null}
         </div>
     );
 }

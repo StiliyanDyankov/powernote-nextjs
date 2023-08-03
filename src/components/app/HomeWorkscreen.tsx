@@ -1,5 +1,5 @@
 "use client"
-import { Alert, Box, Button, Chip, Divider, FormControl, Icon, IconButton, InputLabel, MenuItem, Paper, Select, SelectChangeEvent, Snackbar, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, Tooltip, Typography } from "@mui/material";
+import { Alert, Box, Button, Chip, Divider, FormControl, Icon, IconButton, InputLabel, MenuItem, Paper, Select, SelectChangeEvent, Snackbar, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, ThemeProvider, Tooltip, Typography } from "@mui/material";
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import { useEffect, useMemo, useState } from "react";
@@ -7,13 +7,16 @@ import { Note, Topic, notesDb } from "@/utils/notesDb";
 import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
 import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
-import { HomeContent, TableTabStates, Workscreen, WorkscreenTypes, closeNoteDeleteSuccessfulModal, closeNoteEditSuccessfulModal, closeTopicDeleteSuccessfulModal, closeTopicEditSuccessfulModal, createNewTab, createWorkscreen, setFlexsearchSyncState, setSelectedTableTabHome, setSelectedTopicsHome } from "@/utils/storeSlices/appSlice";
+import { HomeContent, TableTabStates, Workscreen, WorkscreenTypes, closeNoteDeleteSuccessfulModal, closeNoteEditSuccessfulModal, closeTopicDeleteSuccessfulModal, closeTopicEditSuccessfulModal, createNewTab, createWorkscreen, openClosingWorkscreenModal, setFlexsearchSyncState, setSelectedTableTabHome, setSelectedTopicsHome } from "@/utils/storeSlices/appSlice";
 import { RootState } from "@/utils/store";
 import TopicSelector from "./TopicSelector";
 import _ from "lodash"
 import NoteListTable from "./NoteListTable";
 import TopicListTable from "./TopicListTable";
 import CloseIcon from '@mui/icons-material/Close';
+import NoteModal, { ModalStates } from "./NoteModal";
+import TopicModal from "./TopicModal";
+import { darkTheme, lightTheme } from "@/utils/themeMUI";
 
 export interface NoteWithoutDesc {
     id?: string;
@@ -49,6 +52,8 @@ const HomeWorkscreen = ({
     const [refreshFlag, setRefreshFlag] = useState<boolean>(true)
 
     const memoizedNotes = useMemo(() => availableNotes, [availableNotes])
+
+    const mode = useSelector((state: RootState) => state.theme.darkTheme);
 
     // snackbar states
 
@@ -93,6 +98,13 @@ const HomeWorkscreen = ({
     const setSelectedTopics = (newVal: string[]) => {
         dispatch(setSelectedTopicsHome({ inTabId: tabId, workscreenId: workscreenContext.id, newValue: newVal }))
     }
+
+
+    const [openNoteModal, setOpenNoteModal] = useState(false)
+
+    const [openTopicModal, setOpenTopicModal] = useState(false)
+
+    const [inNewTab, setInNewTab] = useState<boolean>(false);
 
     useEffect(() => {
         if (refreshFlag) {
@@ -144,6 +156,27 @@ const HomeWorkscreen = ({
         // setTabValue(newValue);
     }
 
+    const handleNoteClick = () => {
+        if(currentWorkspace?.workscreens.length === 2) {
+            dispatch(openClosingWorkscreenModal());
+            return;
+        }
+
+        if(currentWorkspace) {
+            // create new note
+            setInNewTab(true);
+            setOpenNoteModal(true)
+        } else {
+            // create new note
+            setInNewTab(true);
+            setOpenNoteModal(true)
+        }
+    }
+    
+    const handleTopicClick = () => {
+        setOpenTopicModal(true)
+    }
+
     return (
         <div className="h-full max-w-7xl w-full rounded-b-lg p-4 flex flex-col gap-3" key={workscreenContext.id}>
             {/* home header */}
@@ -163,6 +196,7 @@ const HomeWorkscreen = ({
                         startIcon={
                             <AddRoundedIcon className="dark:fill-l-workscreen-bg" />
                         }
+                        onClick={handleNoteClick}
                     >
                         <span className=" dark:text-l-workscreen-bg">
                             New Note
@@ -181,6 +215,7 @@ const HomeWorkscreen = ({
                         startIcon={
                             <AddRoundedIcon className="dark:fill-l-workscreen-bg" />
                         }
+                        onClick={handleTopicClick}
                     >
                         <span className=" dark:text-l-workscreen-bg">
                             New Topic
@@ -230,7 +265,10 @@ const HomeWorkscreen = ({
                     </div>
                 </Box>
             </div>
-            
+            <ThemeProvider theme={mode ? darkTheme : lightTheme}>
+                <NoteModal open={openNoteModal} setOpen={setOpenNoteModal} currentWorkspace={currentWorkspace} createInNewTab={inNewTab}  initialState={ModalStates.CREATE}/>
+                <TopicModal open={openTopicModal} setOpen={setOpenTopicModal}  initialState={ModalStates.CREATE}/>
+            </ThemeProvider>
             <Snackbar
                 open={stateNoteDeleteSuccessfulModal}
                 autoHideDuration={5000}

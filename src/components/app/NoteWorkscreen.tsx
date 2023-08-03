@@ -47,7 +47,7 @@ const NoteWorkscreen = ({
 
 	const [value, setValue] = useState<any>(null);
 
-
+    const syncState = useSelector((state: RootState) => state.app.flexsearchSync)
 
 	const value2 = useRef<any>(null)
 

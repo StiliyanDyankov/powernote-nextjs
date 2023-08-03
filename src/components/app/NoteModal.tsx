@@ -71,6 +71,10 @@ const NoteModal = (
         getCurrentNumOfDocs();
         getAvailableTopics();
 
+        if(modalState === ModalStates.EDIT) {
+            setModalState(ModalStates.INFO)
+        }
+
         // not needed because of unique key
 
         // setNoteName("New Note");
