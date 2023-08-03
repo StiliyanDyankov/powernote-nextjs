@@ -14,10 +14,8 @@ import { darkTheme, lightTheme } from "@/utils/themeMUI";
 import { ModalStates } from "./NoteModal";
 
 const TopicListTable = ({
-    displayedNotes,
     availableTopics,
 }: {
-    displayedNotes: NoteWithoutDesc[];
     availableTopics: Topic[];
 }) => {
 

@@ -26,6 +26,7 @@
     "dexie": "^3.2.4",
     "eslint": "8.39.0",
     "eslint-config-next": "13.3.1",
+    "flexsearch": "^0.7.21",
     "gsap": "^3.12.1",
     "joi": "^17.9.2",
     "lodash": "^4.17.21",
@@ -44,6 +45,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "@types/flexsearch": "^0.7.3",
     "@types/lodash": "^4.14.196",
     "@types/uuid": "^9.0.2"
   }

@@ -35,7 +35,7 @@ const HomeWorkscreen = ({
     workscreenContext: Workscreen
 }) => {
 
-    const dispatch = useDispatch();
+    const dispatch = useDispatch(); 
 
     const chain = useSelector((state: RootState) => state.app.tabActivityChain)
     const currentWorkspace = useSelector((state: RootState) => state.app.tabs.find(t => t.tabId === chain[chain.length - 1]));
@@ -52,6 +52,8 @@ const HomeWorkscreen = ({
     const [refreshFlag, setRefreshFlag] = useState<boolean>(true)
 
     const memoizedNotes = useMemo(() => availableNotes, [availableNotes])
+
+    const memoDisplayedNotes = useMemo(() => displayedNotes, [memoizedNotes])
 
     const mode = useSelector((state: RootState) => state.theme.darkTheme);
 
@@ -253,7 +255,7 @@ const HomeWorkscreen = ({
                         hidden={tabValue !== TableTabStates.NOTES}
                         id={`simple-tabpanel-${TableTabStates.NOTES}`}
                     >
-                        <NoteListTable displayedNotes={displayedNotes} availableTopics={availableTopics} handleNoteNameClick={handleNoteNameClick} availableNotes={availableNotes} />
+                        <NoteListTable displayedNotes={memoDisplayedNotes} availableTopics={availableTopics} handleNoteNameClick={handleNoteNameClick} availableNotes={availableNotes} />
                     </div>
                     <div
                         role="tabpanel"
@@ -261,7 +263,7 @@ const HomeWorkscreen = ({
                         hidden={tabValue !== TableTabStates.TOPICS}
                         id={`simple-tabpanel-${TableTabStates.TOPICS}`}
                     >
-                        <TopicListTable displayedNotes={displayedNotes} availableTopics={availableTopics}/>
+                        <TopicListTable availableTopics={availableTopics}/>
                     </div>
                 </Box>
             </div>
