@@ -315,7 +315,7 @@ const Searchbar = () => {
                                                     match.noteName.split(' ').map((word, i) => {
                                                         if (word.toLowerCase().includes(storeSearchString.trim().toLowerCase())) {
 
-                                                            return <span className=" bg-primary">{word} </span>;
+                                                            return <span key={i} className=" bg-primary">{word} </span>;
                                                         }
                                                         return `${word} `;
                                                     })
@@ -346,7 +346,7 @@ const Searchbar = () => {
                                                             } else if(word.toLowerCase().includes(storeSearchString.trim().toLowerCase())) {
                                                                 // _.difference(word.toLowerCase(), storeSearchString.trim().toLowerCase())
                                                                 matchedWordIndex.current = i;
-                                                                return <span className=" bg-primary dark:bg-d-400-sibebar">{word + " "}</span>;
+                                                                return <span key={i} className=" bg-primary dark:bg-d-400-sibebar">{word + " "}</span>;
                                                             } else if (i<=5) {
                                                                 return i !== 5? `${word} ` : `${word}...`
                                                             }
