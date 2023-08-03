@@ -5,10 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import "react-quill/dist/quill.snow.css";
 import styles from "../../styles/NoteWorkscreen.module.css"
 import { RootState } from "@/utils/store";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Dexie, { Table } from "dexie";
 import { Note, notesDb } from "@/utils/notesDb";
-import { NoteContent, Tab, Workscreen } from "@/utils/storeSlices/appSlice";
+import { NoteContent, NoteUnsyncOperations, Tab, Workscreen, setFlexsearchSyncState } from "@/utils/storeSlices/appSlice";
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
@@ -43,7 +43,10 @@ const NoteWorkscreen = ({
 	currentNote: Note | null
 }) => {
 
+	const dispatch = useDispatch();
+
 	const [value, setValue] = useState<any>(null);
+
 
 
 	const value2 = useRef<any>(null)
@@ -90,6 +93,13 @@ const NoteWorkscreen = ({
 				if (op) {
 					setSync(false)
 					inTimeoutBeforeWrite.current = false
+					dispatch(setFlexsearchSyncState({
+						syncState: false,
+						details: {
+							operation: NoteUnsyncOperations.CREATE,
+							inNoteId: currentNote.id
+						}
+					}));
 				}
 			} catch (e) {
 				console.error(e)

@@ -8,6 +8,12 @@ import _ from 'lodash';
 import { DragEndEvent } from "@dnd-kit/core";
 import Delta from "quill-delta";
 
+export enum NoteUnsyncOperations {
+    DELETE = "DELETE",
+    CREATE = "CREATE",
+    UPDATE = "UPDATE",
+}
+
 interface Topic {
     topicId: number;
     name: string;
@@ -84,7 +90,21 @@ export interface NoteContent {
 
 export interface AppState {
     closeWorkscreenModal: boolean;
+    
     topicCreationSuccessfulModal: boolean;
+    topicEditSuccessfulModal: boolean;
+    topicDeleteSuccessfulModal: boolean;
+
+    // askOnTopicDelete: boolean;
+    
+    noteEditSuccessfulModal: boolean;
+    noteDeleteSuccessfulModal: boolean;
+
+    // askOnNoteDelete: boolean;
+
+    flexsearchSync: boolean;
+    lastModificationToUnsync: null | { operation: NoteUnsyncOperations, inNoteId: string }
+    
     counterForTabs: number;
     searchString: string;
     searchResults: SearchResult[];
@@ -100,7 +120,21 @@ export const persistConfig: PersistConfig<AppState> = {
 
 const initialState: AppState = {
     closeWorkscreenModal: false,
-    topicCreationSuccessfulModal: true,
+    
+    topicCreationSuccessfulModal: false,
+    topicEditSuccessfulModal: false,
+    topicDeleteSuccessfulModal: false,
+
+    // askOnTopicDelete: true,
+    
+    noteEditSuccessfulModal: false, 
+    noteDeleteSuccessfulModal: false,
+
+    // askOnNoteDelete: true,
+
+    flexsearchSync: true,
+    lastModificationToUnsync: null,
+    
     counterForTabs: 0,
     searchString: "",
     searchResults: [],
@@ -409,18 +443,68 @@ export const appSlice = createSlice({
             state.tabs = [];
             state.tabActivityChain = [];
         },
+        renameTab: (state, action: PayloadAction<{inTabId: number, newName: string }>) => {
+            const targetTab = state.tabs.find(t => t.tabId === action.payload.inTabId);
+
+            if(targetTab) {
+                targetTab.tabName = action.payload.newName;
+            }
+        },
         openClosingWorkscreenModal: (state) => {
             state.closeWorkscreenModal = true;
         },
         closeClosingWorkscreenModal: (state) => {
             state.closeWorkscreenModal = false;
         },
+        
+        // topic
         openTopicCreationSuccessfulModal: (state) => {
             state.topicCreationSuccessfulModal = true;
         },
         closeTopicCreationSuccessfulModal: (state) => {
             state.topicCreationSuccessfulModal = false;
         },
+        openTopicEditSuccessfulModal: (state) => {
+            state.topicEditSuccessfulModal = true;
+        },
+        closeTopicEditSuccessfulModal: (state) => {
+            state.topicEditSuccessfulModal = false;
+        },
+        openTopicDeleteSuccessfulModal: (state) => {
+            state.topicDeleteSuccessfulModal = true;
+        },
+        closeTopicDeleteSuccessfulModal: (state) => {
+            state.topicDeleteSuccessfulModal = false;
+        },
+
+        // dontAskOnTopicDeletion: (state, action: PayloadAction<boolean>) => {
+        //     state.askOnTopicDelete = action.payload;
+        // },
+        
+        // note
+        openNoteEditSuccessfulModal: (state) => {
+            state.noteEditSuccessfulModal = true;
+        },
+        closeNoteEditSuccessfulModal: (state) => {
+            state.noteEditSuccessfulModal = false;
+        },
+        openNoteDeleteSuccessfulModal: (state) => {
+            state.noteDeleteSuccessfulModal = true;
+        },
+        closeNoteDeleteSuccessfulModal: (state) => {
+            state.noteDeleteSuccessfulModal = false;
+        },
+
+        setFlexsearchSyncState: (state, action: PayloadAction<{syncState: boolean, details: { operation: NoteUnsyncOperations, inNoteId: string } | null }>) => {
+
+            state.flexsearchSync = action.payload.syncState;
+
+            state.lastModificationToUnsync = action.payload.details;
+
+        },
+        
+
+        
         closeWorkscreen: (state, action: PayloadAction<{inTabId: number, workscreenId: string}>) => {
             const targetTab = state.tabs.find(t => t.tabId === action.payload.inTabId);
 
@@ -531,7 +615,26 @@ export const {
     openTopicCreationSuccessfulModal,
     closeTopicCreationSuccessfulModal,
     setSelectedTopicsHome,
-    setSelectedTableTabHome
+    setSelectedTableTabHome,
+    renameTab,
+
+    openTopicDeleteSuccessfulModal,
+    closeTopicDeleteSuccessfulModal,
+
+    openTopicEditSuccessfulModal,
+    closeTopicEditSuccessfulModal,
+
+    openNoteEditSuccessfulModal,
+    closeNoteEditSuccessfulModal,
+
+    openNoteDeleteSuccessfulModal,
+    closeNoteDeleteSuccessfulModal,
+
+    // dontAskOnNoteDeletion,
+    // dontAskOnTopicDeletion,
+
+    setFlexsearchSyncState,
+
 } = appSlice.actions;
 
 const persistedReducer = persistReducer(persistConfig, appSlice.reducer);

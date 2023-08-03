@@ -9,14 +9,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { WorkscreenTypes, createNewTab, createWorkscreen, openClosingWorkscreenModal } from "@/utils/storeSlices/appSlice";
 import { RootState } from "@/utils/store";
 import { useState } from "react";
-import NoteModal from "./NoteModal";
+import NoteModal, { ModalStates } from "./NoteModal";
 import { colorsTailwind } from "@/utils/themeMUI";
 import TopicModal from "./TopicModal";
 
 
 
 const AsideBar = () => {
-
     const chain = useSelector((state: RootState) => state.app.tabActivityChain)
     const mode = useSelector((state: RootState) => state.theme.darkTheme);
     const currentWorkspace = useSelector((state: RootState) => state.app.tabs.find(t => t.tabId === chain[chain.length - 1]));
@@ -80,9 +79,6 @@ const AsideBar = () => {
         setOpenTopicModal(true)
     }
 
-
-
-
     const lightTheme = createTheme({
         palette: {
             primary: {
@@ -129,9 +125,6 @@ const AsideBar = () => {
         }
     });
 
-
-
-
     return ( 
         <aside className=" flex flex-col justify-start items-center w-20 bg-l-tools-bg border-r border-r-l-divider/50 p-2 dark:bg-d-300-chips">
             <div className=" w-fit flex flex-col gap-4 items-center">
@@ -168,19 +161,11 @@ const AsideBar = () => {
             </div>
 
             <ThemeProvider theme={mode ? darkTheme : lightTheme}>
-
-                <NoteModal open={openNoteModal} setOpen={setOpenNoteModal} currentWorkspace={currentWorkspace} createInNewTab={inNewTab}/>
-                <TopicModal open={openTopicModal} setOpen={setOpenTopicModal} />
+                <NoteModal open={openNoteModal} setOpen={setOpenNoteModal} currentWorkspace={currentWorkspace} createInNewTab={inNewTab} key={Math.random()*100000} initialState={ModalStates.CREATE}/>
+                <TopicModal open={openTopicModal} setOpen={setOpenTopicModal} key={Math.random()*100000} initialState={ModalStates.CREATE}/>
             </ThemeProvider>
         </aside>
     );
 }
-
-// <div className=" w-fit h-fit bg-l-tools-bg/30  dark:bg-d-300-chips/50 border border-l-divider/50 rounded-lg flex flex-col p-4">
-//                 <div className="font-medium text-xl mb-4 dark:text-l-workscreen-bg">
-//                     some text
-//                 </div>
-
-//             </div>
  
 export default AsideBar;

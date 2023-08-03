@@ -3,10 +3,12 @@ import { Box, Chip, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent
 import { useEffect, useState } from "react";
 
 const TopicSelector = ({
+        disabled = false,
         refreshFlag = false,
         selectedTopics,
         setSelectedTopics,
     }: {
+        disabled?: boolean;
         refreshFlag?: boolean;
         selectedTopics: string[];
         setSelectedTopics: (values: string[]) => void
@@ -37,6 +39,7 @@ const TopicSelector = ({
         <FormControl color="secondary" className="w-full">
             <InputLabel id="demo-simple-select-label">Filter by Topics</InputLabel>
             <Select
+                disabled={disabled}
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
                 label="Filter by Topics"

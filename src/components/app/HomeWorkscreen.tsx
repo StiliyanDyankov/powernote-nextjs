@@ -1,5 +1,5 @@
 "use client"
-import { Box, Button, Chip, Divider, FormControl, Icon, IconButton, InputLabel, MenuItem, Paper, Select, SelectChangeEvent, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, Tooltip, Typography } from "@mui/material";
+import { Alert, Box, Button, Chip, Divider, FormControl, Icon, IconButton, InputLabel, MenuItem, Paper, Select, SelectChangeEvent, Snackbar, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, Tooltip, Typography } from "@mui/material";
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import { useEffect, useMemo, useState } from "react";
@@ -7,12 +7,13 @@ import { Note, Topic, notesDb } from "@/utils/notesDb";
 import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
 import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
-import { HomeContent, TableTabStates, Workscreen, WorkscreenTypes, createNewTab, createWorkscreen, setSelectedTableTabHome, setSelectedTopicsHome } from "@/utils/storeSlices/appSlice";
+import { HomeContent, TableTabStates, Workscreen, WorkscreenTypes, closeNoteDeleteSuccessfulModal, closeNoteEditSuccessfulModal, closeTopicDeleteSuccessfulModal, closeTopicEditSuccessfulModal, createNewTab, createWorkscreen, setFlexsearchSyncState, setSelectedTableTabHome, setSelectedTopicsHome } from "@/utils/storeSlices/appSlice";
 import { RootState } from "@/utils/store";
 import TopicSelector from "./TopicSelector";
 import _ from "lodash"
 import NoteListTable from "./NoteListTable";
 import TopicListTable from "./TopicListTable";
+import CloseIcon from '@mui/icons-material/Close';
 
 export interface NoteWithoutDesc {
     id?: string;
@@ -33,7 +34,6 @@ const HomeWorkscreen = ({
 
     const dispatch = useDispatch();
 
-
     const chain = useSelector((state: RootState) => state.app.tabActivityChain)
     const currentWorkspace = useSelector((state: RootState) => state.app.tabs.find(t => t.tabId === chain[chain.length - 1]));
 
@@ -43,8 +43,6 @@ const HomeWorkscreen = ({
 
     const [displayedNotes, setDisplayedNotes] = useState<NoteWithoutDesc[]>([]);
 
-    // const [selectedTopics, setSelectedTopics] = useState<string[]>([])
-
     const selectedTopics = (workscreenContext.content as HomeContent).selectedTopics;
     const tabValue = (workscreenContext.content as HomeContent).selectedTableTab
 
@@ -52,7 +50,15 @@ const HomeWorkscreen = ({
 
     const memoizedNotes = useMemo(() => availableNotes, [availableNotes])
 
-    // const [tabValue, setTabValue] = useState<TableTabStates>(TableTabStates.NOTES)
+    // snackbar states
+
+    const stateTopicEditSuccessfulModal = useSelector((state: RootState) => state.app.topicEditSuccessfulModal)
+    const stateTopicDeleteSuccessfulModal = useSelector((state: RootState) => state.app.topicDeleteSuccessfulModal)
+    
+    const stateNoteEditSuccessfulModal = useSelector((state: RootState) => state.app.noteEditSuccessfulModal)
+    const stateNoteDeleteSuccessfulModal = useSelector((state: RootState) => state.app.noteDeleteSuccessfulModal)
+
+    const syncState = useSelector((state: RootState) => state.app.flexsearchSync)
 
     const getAvailableNotes = async () => {
         let availableNotes = await notesDb.notes.toArray();
@@ -61,8 +67,13 @@ const HomeWorkscreen = ({
             return rest
         });
         setAvailableNotes(processedNotes);
-
     }
+
+    dispatch(setFlexsearchSyncState({
+        syncState: true,
+        details: null,
+    }));
+
 
     const sortByModify = (
         arr: {
@@ -75,6 +86,7 @@ const HomeWorkscreen = ({
 
     const getAvailableTopics = async () => {
         const availableTopics = await notesDb.topics.toArray();
+        sortByModify(availableTopics)
         setAvailableTopics(availableTopics);
     }
 
@@ -87,8 +99,12 @@ const HomeWorkscreen = ({
             getAvailableTopics();
             getAvailableNotes();
             setRefreshFlag(false);
+        } 
+        else if(!syncState) {
+            getAvailableTopics();
+            getAvailableNotes();
         }
-    }, [refreshFlag])
+    }, [refreshFlag, syncState])
 
     useEffect(() => {
         console.log("available", availableNotes, availableTopics);
@@ -105,14 +121,6 @@ const HomeWorkscreen = ({
 
         setDisplayedNotes(intAvailableNotes)
     }, [memoizedNotes, selectedTopics])
-
-    const handleEditNote = (noteId: string) => {
-        console.log(noteId)
-    }
-
-    const handleEditTopic = (topicId: string) => {
-        console.log(topicId)
-    }
 
     const handleRefresh = () => {
         setRefreshFlag(true);
@@ -187,9 +195,6 @@ const HomeWorkscreen = ({
             <Divider />
             <div className=" h-full w-full flex flex-col ">
 
-                {/* <NoteListTable displayedNotes={displayedNotes} availableTopics={availableTopics} handleNoteNameClick={handleNoteNameClick} handleEditNote={handleEditNote} availableNotes={availableNotes}/>
-                <TopicListTable displayedNotes={displayedNotes} availableTopics={availableTopics} handleNoteNameClick={handleNoteNameClick} handleEditNote={handleEditNote} /> */}
-
                 <Box sx={{ width: '100%' }}>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider', position: "relative", width: "100%", zIndex: 0 }}>
                         <Tabs value={tabValue} onChange={handleTableTabClick} aria-label="basic tabs example" className=" z-10" textColor="secondary" sx={{ textTransform: "none" }}>
@@ -213,7 +218,7 @@ const HomeWorkscreen = ({
                         hidden={tabValue !== TableTabStates.NOTES}
                         id={`simple-tabpanel-${TableTabStates.NOTES}`}
                     >
-                        <NoteListTable displayedNotes={displayedNotes} availableTopics={availableTopics} handleNoteNameClick={handleNoteNameClick} handleEditNote={handleEditNote} availableNotes={availableNotes} />
+                        <NoteListTable displayedNotes={displayedNotes} availableTopics={availableTopics} handleNoteNameClick={handleNoteNameClick} availableNotes={availableNotes} />
                     </div>
                     <div
                         role="tabpanel"
@@ -221,10 +226,150 @@ const HomeWorkscreen = ({
                         hidden={tabValue !== TableTabStates.TOPICS}
                         id={`simple-tabpanel-${TableTabStates.TOPICS}`}
                     >
-                        <TopicListTable displayedNotes={displayedNotes} availableTopics={availableTopics} handleEditNote={handleEditNote} />
+                        <TopicListTable displayedNotes={displayedNotes} availableTopics={availableTopics}/>
                     </div>
                 </Box>
             </div>
+            
+            <Snackbar
+                open={stateNoteDeleteSuccessfulModal}
+                autoHideDuration={5000}
+                message={"Note deleted successfully"}
+                onClose={() => {
+                    dispatch(closeNoteDeleteSuccessfulModal());
+                }}
+                action={
+                    <IconButton
+                        aria-label="close"
+                        color="inherit"
+                        sx={{ p: 0.5 }}
+                        onClick={() => {
+                            dispatch(closeNoteDeleteSuccessfulModal());
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                }
+                anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "left"
+                }}
+            >
+                <Alert
+                    onClose={() => {
+                        dispatch(closeNoteDeleteSuccessfulModal());
+                    }}
+                    severity="success"
+                    sx={{ width: '100%' }}
+                >
+                    Note deleted successfully
+                </Alert>
+            </Snackbar>
+
+            <Snackbar
+                open={stateNoteEditSuccessfulModal}
+                autoHideDuration={5000}
+                message={"Note edited successfully"}
+                onClose={() => {
+                    dispatch(closeNoteEditSuccessfulModal());
+                }}
+                action={
+                    <IconButton
+                        aria-label="close"
+                        color="inherit"
+                        sx={{ p: 0.5 }}
+                        onClick={() => {
+                            dispatch(closeNoteEditSuccessfulModal());
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                }
+                anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "left"
+                }}
+            >
+                <Alert
+                    onClose={() => {
+                        dispatch(closeNoteEditSuccessfulModal());
+                    }}
+                    severity="success"
+                    sx={{ width: '100%' }}
+                >
+                    Note edited successfully
+                </Alert>
+            </Snackbar>
+
+            <Snackbar
+                open={stateTopicDeleteSuccessfulModal}
+                autoHideDuration={5000}
+                message={"Topic deleted successfully"}
+                onClose={() => {
+                    dispatch(closeTopicDeleteSuccessfulModal());
+                }}
+                action={
+                    <IconButton
+                        aria-label="close"
+                        color="inherit"
+                        sx={{ p: 0.5 }}
+                        onClick={() => {
+                            dispatch(closeTopicDeleteSuccessfulModal());
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                }
+                anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "left"
+                }}
+            >
+                <Alert
+                    onClose={() => {
+                        dispatch(closeTopicDeleteSuccessfulModal());
+                    }}
+                    severity="success"
+                    sx={{ width: '100%' }}
+                >
+                    Topic deleted successfully
+                </Alert>
+            </Snackbar>
+
+            <Snackbar
+                open={stateTopicEditSuccessfulModal}
+                autoHideDuration={5000}
+                message={"Topic edited successfully"}
+                onClose={() => {
+                    dispatch(closeTopicEditSuccessfulModal());
+                }}
+                action={
+                    <IconButton
+                        aria-label="close"
+                        color="inherit"
+                        sx={{ p: 0.5 }}
+                        onClick={() => {
+                            dispatch(closeTopicEditSuccessfulModal());
+                        }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                }
+                anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "left"
+                }}
+            >
+                <Alert
+                    onClose={() => {
+                        dispatch(closeTopicEditSuccessfulModal());
+                    }}
+                    severity="success"
+                    sx={{ width: '100%' }}
+                >
+                    Topic edited successfully
+                </Alert>
+            </Snackbar>
         </div>
     );
 }
