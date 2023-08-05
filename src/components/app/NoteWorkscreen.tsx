@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Dexie, { Table } from "dexie";
 import { Note, notesDb } from "@/utils/notesDb";
 import { NoteContent, NoteUnsyncOperations, Tab, Workscreen, setFlexsearchSyncState } from "@/utils/storeSlices/appSlice";
+import { index } from "@/pages/app";
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
@@ -57,6 +58,8 @@ const NoteWorkscreen = ({
 
 	const theme = useSelector((state: RootState) => state.theme)
 
+	const [embedDone, setEmbedDone] = useState<boolean>(false)
+
 	useEffect(() => {
 		// here we write to indexeddb
 		if (value !== null) {
@@ -82,6 +85,27 @@ const NoteWorkscreen = ({
 		}
 	}, [currentNote])
 
+	// useEffect(()=> {
+	// 	var htmlToInsert = "<p>here is some <strong>awesome</strong> text</p>"
+	// 	var editor = document.getElementsByClassName('ql-editor');
+	// 	var editor2 = document.querySelector('.ql-editor');
+	// 	var editor3 = document.getElementById("quill-editor");
+
+	// 	console.log(editor.namedItem("div.ql-editor"))
+	// 	console.log("QUILLLLLLLLLLLLL",editor3)
+	// 	if(editor3 && !embedDone) {
+	// 		const textEditor = editor3.lastChild?.firstChild as HTMLElement;
+	// 		const toBeInjected = document.createElement("div");
+	// 		// toBeInjected.innerHTML = htmlToInsert;
+			
+	// 		textEditor?.appendChild(toBeInjected);
+	// 		setEmbedDone(true);
+
+			
+	// 	}
+	// 	// editor[0].innerHTML = htmlToInsert
+	// },[value])
+
 
 	const writeContents = async () => {
 		console.log("runs write", currentNote)
@@ -100,6 +124,15 @@ const NoteWorkscreen = ({
 							inNoteId: currentNote.id
 						}
 					}));
+					const note = await notesDb.notes.get(currentNote.id);
+					if(note) {
+						index.update({
+							id: note.id,
+							noteName: note.noteName, 
+							content: (note.content as Delta).ops[0] ? 
+								(note.content as Delta).ops[0].insert : "" 		
+						})
+					}
 				}
 			} catch (e) {
 				console.error(e)
@@ -131,7 +164,6 @@ const NoteWorkscreen = ({
 		}
 	}
 
-
 	return (
 		<div
 			id="text-editor-wrapper"
@@ -143,16 +175,18 @@ const NoteWorkscreen = ({
 					<ReactQuill
 						theme="snow"
 						className={theme.darkTheme ? "dark" : ""}
+						id={"quill-editor"}
 						defaultValue={value}
 						value={value}
 						onChange={(event, delta, source, editor) => {
 							setValue(editor.getContents());
 							value2.current = editor.getContents();
+							
 							updateLastModified();
 						}}
 						modules={modules}
 						style={{
-							width: wrapperRef.current?.offsetWidth || "auto"
+							width: "100%"
 						}}
 					/>
 				) : null

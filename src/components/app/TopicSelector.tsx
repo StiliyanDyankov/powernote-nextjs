@@ -70,15 +70,15 @@ const TopicSelector = ({
                 }}
             >
                 {availableTopics.map((topic, i) => (
-                    <MenuItem key={i} value={topic.id} className=" flex flex-row gap-2">
-                        <div key={i} style={{
+                    <MenuItem key={`${i} menu item`} value={topic.id} className=" flex flex-row gap-2">
+                        <div key={`${i} somewrapper`} style={{
                             backgroundColor: topic.color,
                             borderRadius: 9999,
                             width: "20px",
                             height: "20px",
                         }}>
                         </div>
-                        <div key={i}>
+                        <div key={`${i} bane item`}>
                             {topic.topicName}
                         </div> 
                     </MenuItem>

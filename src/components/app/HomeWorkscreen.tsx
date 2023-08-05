@@ -7,7 +7,7 @@ import { Note, Topic, notesDb } from "@/utils/notesDb";
 import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
 import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
-import { HomeContent, TableTabStates, Workscreen, WorkscreenTypes, closeNoteDeleteSuccessfulModal, closeNoteEditSuccessfulModal, closeTopicDeleteSuccessfulModal, closeTopicEditSuccessfulModal, createNewTab, createWorkscreen, openClosingWorkscreenModal, setFlexsearchSyncState, setSelectedTableTabHome, setSelectedTopicsHome } from "@/utils/storeSlices/appSlice";
+import { HomeContent, NoteTypes, TableTabStates, Workscreen, WorkscreenTypes, closeNoteDeleteSuccessfulModal, closeNoteEditSuccessfulModal, closeTopicDeleteSuccessfulModal, closeTopicEditSuccessfulModal, createNewTab, createWorkscreen, openClosingWorkscreenModal, setFlexsearchSyncState, setSelectedTableTabHome, setSelectedTopicsHome } from "@/utils/storeSlices/appSlice";
 import { RootState } from "@/utils/store";
 import TopicSelector from "./TopicSelector";
 import _ from "lodash"
@@ -25,6 +25,8 @@ export interface NoteWithoutDesc {
     description: string;
     createdAt: number;
     lastModified: number;
+    type?: NoteTypes;
+    from?: string;
 }
 
 const HomeWorkscreen = ({
@@ -35,7 +37,7 @@ const HomeWorkscreen = ({
     workscreenContext: Workscreen
 }) => {
 
-    const dispatch = useDispatch(); 
+    const dispatch = useDispatch();
 
     const chain = useSelector((state: RootState) => state.app.tabActivityChain)
     const currentWorkspace = useSelector((state: RootState) => state.app.tabs.find(t => t.tabId === chain[chain.length - 1]));
@@ -53,7 +55,7 @@ const HomeWorkscreen = ({
 
     const memoizedNotes = useMemo(() => availableNotes, [availableNotes])
 
-    const memoDisplayedNotes = useMemo(() => displayedNotes, [memoizedNotes])
+    const memoDisplayedNotes = useMemo(() => displayedNotes, [displayedNotes])
 
     const mode = useSelector((state: RootState) => state.theme.darkTheme);
 
@@ -76,10 +78,10 @@ const HomeWorkscreen = ({
         setAvailableNotes(processedNotes);
     }
 
-    dispatch(setFlexsearchSyncState({
-        syncState: true,
-        details: null,
-    }));
+    // dispatch(setFlexsearchSyncState({
+    //     syncState: true,
+    //     details: null,
+    // }));
 
 
     const sortByModify = (
@@ -88,7 +90,6 @@ const HomeWorkscreen = ({
             lastModified: number;
         }[]) => {
         arr.sort((a, b) => b.lastModified - a.lastModified);
-        console.log("sorted arr", arr);
     }
 
     const getAvailableTopics = async () => {
@@ -114,15 +115,18 @@ const HomeWorkscreen = ({
             getAvailableNotes();
             setRefreshFlag(false);
         } 
-        else if(!syncState) {
+    }, [refreshFlag])
+
+    useEffect(()=> {
+        if(!syncState) {
             getAvailableTopics();
             getAvailableNotes();
         }
-    }, [refreshFlag, syncState])
+    }, [syncState])
 
-    useEffect(() => {
-        console.log("available", availableNotes, availableTopics);
-    }, [memoizedNotes, availableTopics])
+    // useEffect(() => {
+    //     console.log("available", availableNotes, availableTopics);
+    // }, [memoizedNotes, availableTopics, availableNotes, displayedNotes, memoDisplayedNotes])
 
     useEffect(() => {
         let intAvailableNotes = [...memoizedNotes]
@@ -140,15 +144,27 @@ const HomeWorkscreen = ({
         setRefreshFlag(true);
     }
 
-    const handleNoteNameClick = (noteId: string, noteName: string) => {
-        if (currentWorkspace?.workscreens && currentWorkspace?.workscreens.length < 2) {
-            // create new note
-
-            dispatch(createWorkscreen({ inTabId: tabId, type: WorkscreenTypes.NOTE, options: { noteId: noteId } }))
+    const handleNoteNameClick = (noteId: string, noteName: string, type?: NoteTypes) => {
+        if (type && type === NoteTypes.EMBED) {
+            if (currentWorkspace?.workscreens && currentWorkspace?.workscreens.length < 2) {
+                // create new note
+                
+                dispatch(createWorkscreen({ inTabId: tabId, type: WorkscreenTypes.EMBED, options: { noteId: noteId } }))
+            } else {
+                // create new note
+                
+                dispatch(createNewTab({ tabName: noteName, workscreen: { type: WorkscreenTypes.EMBED, content: { noteId: noteId } } }))
+            }
         } else {
-            // create new note
-
-            dispatch(createNewTab({ tabName: noteName, workscreen: { type: WorkscreenTypes.NOTE, content: { noteId: noteId } } }))
+            if (currentWorkspace?.workscreens && currentWorkspace?.workscreens.length < 2) {
+                // create new note
+                
+                dispatch(createWorkscreen({ inTabId: tabId, type: WorkscreenTypes.NOTE, options: { noteId: noteId } }))
+            } else {
+                // create new note
+                
+                dispatch(createNewTab({ tabName: noteName, workscreen: { type: WorkscreenTypes.NOTE, content: { noteId: noteId } } }))
+            }
         }
     }
 
@@ -254,14 +270,16 @@ const HomeWorkscreen = ({
                         className=" mt-2"
                         hidden={tabValue !== TableTabStates.NOTES}
                         id={`simple-tabpanel-${TableTabStates.NOTES}`}
+                        key={workscreenContext.id + TableTabStates.NOTES}
                     >
-                        <NoteListTable displayedNotes={memoDisplayedNotes} availableTopics={availableTopics} handleNoteNameClick={handleNoteNameClick} availableNotes={availableNotes} />
+                        <NoteListTable  displayedNotes={memoDisplayedNotes} availableTopics={availableTopics} handleNoteNameClick={handleNoteNameClick} availableNotes={availableNotes} />
                     </div>
                     <div
                         role="tabpanel"
                         className=" mt-2"
                         hidden={tabValue !== TableTabStates.TOPICS}
                         id={`simple-tabpanel-${TableTabStates.TOPICS}`}
+                        key={workscreenContext.id + TableTabStates.TOPICS}
                     >
                         <TopicListTable availableTopics={availableTopics}/>
                     </div>

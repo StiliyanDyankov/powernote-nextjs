@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/utils/store";
 import { darkTheme, lightTheme } from "@/utils/themeMUI";
 import { useEffect, useState } from "react";
+import { NoteTypes } from "@/utils/storeSlices/appSlice";
 
 const NoteListTable = ({
     availableNotes,
@@ -20,7 +21,7 @@ const NoteListTable = ({
     availableNotes: NoteWithoutDesc[];
     displayedNotes: NoteWithoutDesc[];
     availableTopics: Topic[];
-    handleNoteNameClick: (noteId: string, noteName: string) => void;
+    handleNoteNameClick: (noteId: string, noteName: string, type?: NoteTypes) => void;
 }) => {
 
     const [openNoteModal, setOpenNoteModal] = useState<boolean>(false);
@@ -37,8 +38,8 @@ const NoteListTable = ({
     //     }
     // }
 
-    useEffect(()=> {
-        if(!openNoteModal) {
+    useEffect(() => {
+        if (!openNoteModal) {
             setModalOpenFor(null);
         }
     }, [openNoteModal])
@@ -58,44 +59,49 @@ const NoteListTable = ({
                     </TableHead>
                     <TableBody className=" overflow-hidden max-h-96">
                         {displayedNotes.map((note, i) => (
-                            <>
-                                <TableRow
-                                    key={i}
-                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                    className="hover:bg-primary/10"
-                                >
-                                    <TableCell component="th" scope="row" style={{ width: "24%" }}>
-                                        <span className=" form-text hover:underline hover:cursor-pointer" onClick={() => { handleNoteNameClick(note.id as string, note.noteName) }}>
-                                            {note.noteName}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell style={{ width: "20%" }}>{moment.duration(Date.now() - note.lastModified).humanize() + " ago"}</TableCell>
-                                    <TableCell style={{ width: "20%" }}>{moment.duration(Date.now() - note.createdAt).humanize() + " ago"}</TableCell>
-                                    <TableCell style={{ width: "32%" }}>
-                                        {
-                                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                                {(note.topics as unknown as Topic[]).map((topicId) => {
-                                                    const topic = availableTopics.find(t => t.id === topicId as unknown as string) as Topic;
-                                                    if(topic){
-                                                        return <Chip key={topic.id} label={topic.topicName} sx={{ backgroundColor: topic.color, height: "23px", color: "black" }} />
-                                                    }
-                                                })}
-                                            </Box>
+                            <TableRow
+                                key={i}
+                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                className="hover:bg-primary/10"
+                            >
+                                <TableCell component="th" scope="row" style={{ width: "24%" }}>
+                                    <span className=" form-text hover:underline hover:cursor-pointer" onClick={() => {
+                                        if (note.type && note.type === NoteTypes.EMBED) {
+                                            handleNoteNameClick(note.id as string, note.noteName, NoteTypes.EMBED)
+                                        } else {
+                                            handleNoteNameClick(note.id as string, note.noteName)
                                         }
-                                    </TableCell>
-                                    <TableCell style={{ width: "4%" }}>
-                                        <Tooltip title={"Edit Note"}>
-                                            <IconButton sx={{ width: "1.5rem", height: "1.5rem" }} onClick={() => {
-                                                setOpenNoteModal(true);
-                                                setModalOpenFor(note.id as string);
-                                            }}>
-                                                <MoreVertRoundedIcon />
-                                            </IconButton>
-                                        </Tooltip>
+                                    }
+                                    }>
+                                        {note.noteName}
+                                    </span>
+                                </TableCell>
+                                <TableCell style={{ width: "20%" }}>{moment.duration(Date.now() - note.lastModified).humanize() + " ago"}</TableCell>
+                                <TableCell style={{ width: "20%" }}>{moment.duration(Date.now() - note.createdAt).humanize() + " ago"}</TableCell>
+                                <TableCell style={{ width: "32%" }}>
+                                    {
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                            {(note.topics as unknown as Topic[]).map((topicId, i) => {
+                                                const topic = availableTopics.find(t => t.id === topicId as unknown as string) as Topic;
+                                                if (topic) {
+                                                    return <Chip key={i} label={topic.topicName} sx={{ backgroundColor: topic.color, height: "23px", color: "black" }} />
+                                                }
+                                            })}
+                                        </Box>
+                                    }
+                                </TableCell>
+                                <TableCell style={{ width: "4%" }}>
+                                    <Tooltip title={"Edit Note"}>
+                                        <IconButton sx={{ width: "1.5rem", height: "1.5rem" }} onClick={() => {
+                                            setOpenNoteModal(true);
+                                            setModalOpenFor(note.id as string);
+                                        }}>
+                                            <MoreVertRoundedIcon />
+                                        </IconButton>
+                                    </Tooltip>
 
-                                    </TableCell>
-                                </TableRow>
-                            </>
+                                </TableCell>
+                            </TableRow>
                         ))}
                     </TableBody>
                 </Table>

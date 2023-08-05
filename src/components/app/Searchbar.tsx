@@ -7,7 +7,7 @@ import React from "react";
 import { gsap } from "gsap";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../utils/store";
-import { WorkscreenTypes, clearSearchString, createNewTab, createWorkscreen, inputSearchString } from "@/utils/storeSlices/appSlice";
+import { WorkscreenTypes, clearSearchString, createNewTab, createWorkscreen, inputSearchString, setFlexsearchSyncState } from "@/utils/storeSlices/appSlice";
 import { index } from "@/pages/app";
 import { Note, Topic, notesDb } from "@/utils/notesDb";
 import moment from "moment";
@@ -88,7 +88,12 @@ const Searchbar = () => {
         getAvailableTopics();
     }, [])
 
-    
+    useEffect(()=> {
+        if(!notesSyncState) {
+
+            dispatch(setFlexsearchSyncState({syncState: true, details: null}))
+        }
+    }, [notesSyncState])
 
     useEffect(()=> {
         setDum(!dum)
@@ -306,10 +311,10 @@ const Searchbar = () => {
                             displayedSearchRes.map((match, i) => (
                                 <>
                                     <Divider className=" mb-1"  key={`${i}-div`}/>
-                                    <div className=" w-full h-fit flex flex-col gap-2 justify-between mb-2" key={i}>
+                                    <div className=" w-full h-fit flex flex-col gap-2 justify-between pb-2 px-2 hover:bg-primary/10" key={i}>
 
                                         <div className=" w-full flex flex-row justify-between items-center">
-                                            <span className=" form-text hover:underline hover:cursor-pointer" onClick={() => { handleNoteNameClick(match.id as string, match.noteName) }}>
+                                            <span className=" form-text hover:underline hover:cursor-pointer text-lg" onClick={() => { handleNoteNameClick(match.id as string, match.noteName) }}>
                                                 {/* ought be modified if match in name */}
                                                 {
                                                     match.noteName.split(' ').map((word, i) => {
@@ -322,7 +327,7 @@ const Searchbar = () => {
                                                 }
                                             </span>
 
-                                            <span>
+                                            <span className="dark:text-l-workspace-bg/70">
                                                 {moment.duration(Date.now() - match.lastModified).humanize() + " ago"}
                                             </span>
                                         </div>
@@ -346,10 +351,10 @@ const Searchbar = () => {
                                                             } else if(word.toLowerCase().includes(storeSearchString.trim().toLowerCase())) {
                                                                 // _.difference(word.toLowerCase(), storeSearchString.trim().toLowerCase())
                                                                 matchedWordIndex.current = i;
-                                                                return <span key={i} className=" bg-primary dark:bg-d-400-sibebar">{word + " "}</span>;
-                                                            } else if (i<=5) {
-                                                                return i !== 5? `${word} ` : `${word}...`
-                                                            }
+                                                                return <span key={i} className=" bg-primary dark:bg-d-400-sibebar font-semibold">{word}</span>
+                                                            } else if (i>matchedWordIndex.current &&  i<= matchedWordIndex.current+5) {
+                                                                return i !==  matchedWordIndex.current+5? ` ${word} ` : ` ${word}...`
+                                                            } else if(i >  matchedWordIndex.current+5) return;
                                                         })
                                                     }
                                                 </div>

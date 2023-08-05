@@ -7,6 +7,7 @@ import AppView from "@/components/app/AppView";
 import { notesDb } from "@/utils/notesDb";
 import Delta from "quill-delta";
 import { generateId } from "@/components/app/WorkspaceView";
+import { NoteTypes } from "@/utils/storeSlices/appSlice";
 // import { Document as TDocument } from "flexsearch";
 let { Document } = require(`flexsearch`);
 
@@ -35,7 +36,9 @@ const AppPage = () => {
 		if(notes.length> 0){
 
 			notes.forEach((note)=> {
-				index.add({id:note.id, noteName: note.noteName, content: note.content.ops[0] ? note.content.ops[0].insert : "" });
+				if(!note.type || (note.type && note.type === NoteTypes.NOTE)) {
+					index.add({id:note.id, noteName: note.noteName, content: (note.content as Delta).ops[0] ? (note.content as Delta).ops[0].insert : "" });
+				}
 				console.log("time taken", Date.now()-time)
 			})
 			

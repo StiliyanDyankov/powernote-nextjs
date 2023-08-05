@@ -13,6 +13,7 @@ import Delta from "quill-delta";
 import TopicSelector from "./TopicSelector";
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditNoteRoundedIcon from '@mui/icons-material/EditNoteRounded';
+import { index } from "@/pages/app";
 
 
 export enum ModalStates {
@@ -68,6 +69,7 @@ const NoteModal = (
     }
 
     useEffect(() => {
+        console.log("runs")
         getCurrentNumOfDocs();
         getAvailableTopics();
 
@@ -87,7 +89,7 @@ const NoteModal = (
 
 
     useEffect(() => {
-        console.log("fuking runs the setopenfalse", operationState, modalState)
+        console.log("fuking runs the setopenfalse", operationState, modalState, noteId)
         if (operationState && noteId && modalState === ModalStates.CREATE) {
             setOpen(false);
             if (currentWorkspace) {
@@ -159,6 +161,13 @@ const NoteModal = (
                     }
                 }));
                 setOperationState(true);
+                const note = await notesDb.notes.get(editNoteId);
+                if(note) {
+                    index.update({
+                        id: note.id,
+                        noteName: note.noteName, 
+                    })
+                }
             }
         } catch (error) {
             console.log("error with edit note", error)

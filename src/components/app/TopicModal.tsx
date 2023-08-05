@@ -138,6 +138,8 @@ const TopicModal = (
     };
 
     const handleMainActionClick = () => {
+        console.log("in edit toopic", modalState)
+
         if(modalState === ModalStates.CREATE) {
             createNewTopic();
         } else if (modalState === ModalStates.EDIT) {
@@ -146,13 +148,14 @@ const TopicModal = (
     }
 
     const editTopic = async () => {
+        console.log("in edit toopic", editTopicId)
         if (!editTopicId) {
             return;
         }
 
         try {
             const id = await notesDb.topics.update(editTopicId, {
-                noteName: topicName,
+                topicName: topicName,
                 color: topicColor,
                 description: topicDescription,
                 lastModified: Date.now(),
@@ -409,7 +412,7 @@ const TopicModal = (
                                         variant="contained"
                                         color="secondary"
                                         disableElevation
-                                        onClick={handleMainActionClick}
+                                        onClick={()=>{handleMainActionClick(); console.log("runs handler of main action in topic modal")}}
                                     >
                                         <span
                                             style={{

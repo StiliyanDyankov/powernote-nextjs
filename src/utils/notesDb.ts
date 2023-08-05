@@ -1,6 +1,7 @@
 "use client"
 import Dexie, { Table } from "dexie";
 import Delta from "quill-delta";
+import { NoteTypes } from "./storeSlices/appSlice";
 
 export interface Note {
     id?: string;
@@ -9,7 +10,9 @@ export interface Note {
     description: string;
     createdAt: number;
     lastModified: number;
-    content: Delta;
+    type?: NoteTypes;
+    content: Delta | string;
+    from?: string;
 }
 
 export interface Topic {

@@ -1,7 +1,7 @@
 "use client"
 import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
-import { NoteContent, PossiblePositions, Workscreen, WorkscreenTypes, closeWorkscreen } from "@/utils/storeSlices/appSlice";
+import { NoteContent, NoteTypes, PossiblePositions, Workscreen, WorkscreenTypes, closeWorkscreen } from "@/utils/storeSlices/appSlice";
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { IconButton, ThemeProvider, Tooltip } from "@mui/material";
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,6 +16,8 @@ import { Note, notesDb } from '@/utils/notesDb';
 import { RootState } from '@/utils/store';
 import { darkTheme, lightTheme } from '@/utils/themeMUI';
 import NoteModal, { ModalStates } from './NoteModal';
+import EmbedWorkscreen from './EmbedWorkscreen';
+import { generateId } from './WorkspaceView';
 
 
 const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscreen, tabId: number }) => {
@@ -40,7 +42,7 @@ const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscree
     useEffect(() => {
         console.log("triggers on change of sync", currentNote)
 
-        if (workscreenContext.type === WorkscreenTypes.NOTE) {
+        if (workscreenContext.type === WorkscreenTypes.NOTE || workscreenContext.type === WorkscreenTypes.EMBED) {
             console.log("runs fjdhsakljadss");
             getNote();
         }
@@ -73,6 +75,16 @@ const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscree
         }
     }
 
+    // notesDb.notes.add({
+    //     id: generateId(),
+    //     noteName: 'Embeded content',
+    //     topics: [],
+    //     description: '',
+    //     createdAt: Date.now(),
+    //     lastModified: Date.now(),
+    //     content: "<div>some <strong> important </strong> content </div>",
+    //     type: NoteTypes.EMBED
+    // })
     // end of for note ws
 
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
@@ -102,18 +114,19 @@ const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscree
             {/* header of workscreen */}
             <div className="flex flex-row justify-between items-center rounded-t-lg px-2 h-9 relative">
                 <div className="w-fit h-fit flex flex-row justify-center gap-2 items-center text-l-utility-dark dark:text-l-tools-bg z-10">
-                    {workscreenContext.type === WorkscreenTypes.NOTE ? (
+                    {workscreenContext.type === WorkscreenTypes.NOTE || workscreenContext.type === WorkscreenTypes.EMBED ? (
                         <>
                             <Tooltip title={"Edit Note"}>
                                 <IconButton sx={{ width: "1.5rem", height: "1.5rem" }} onClick={() => {
                                     setOpenNoteModal(true);
+                                    console.log(openNoteModal, currentNote?.id);
                                 }}>
                                     <MoreVertRoundedIcon />
                                 </IconButton>
                             </Tooltip>
 
                             {/* note name */}
-
+                            
                             <span className=' text-sm'>
                                 <Tooltip title={currentNote?.noteName}>
                                     <span className='cursor-default select-none'>
@@ -126,21 +139,25 @@ const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscree
                                     </span>
                                 </Tooltip>
                             </span>
-
-                            <div className=' text-sm flex flex-row justify-center items-center gap-2'>
-                                <div className=" border-l border-l-divider pl-2">
-                                    {sync ?
-                                        <LoopRoundedIcon sx={{ width: "1.2rem", height: "1.2rem" }} />
-                                        : <CloudDoneRoundedIcon sx={{ width: "1.2rem", height: "1.2rem" }} />
-                                    }
-                                </div>
-                                <span>
-                                    {sync ?
-                                        "Synchronising..."
-                                        : "Synchronised"
-                                    }
-                                </span>
-                            </div>
+                            
+                            {
+                                workscreenContext.type === WorkscreenTypes.NOTE ? (
+                                    <div className=' text-sm flex flex-row justify-center items-center gap-2'>
+                                        <div className=" border-l border-l-divider pl-2">
+                                            {sync ?
+                                                <LoopRoundedIcon sx={{ width: "1.2rem", height: "1.2rem" }} />
+                                                : <CloudDoneRoundedIcon sx={{ width: "1.2rem", height: "1.2rem" }} />
+                                            }
+                                        </div>
+                                        <span>
+                                            {sync ?
+                                                "Synchronising..."
+                                                : "Synchronised"
+                                            }
+                                        </span>
+                                    </div>
+                                ) : null
+                            }
                         </>
                     ) : null}
                 </div>
@@ -176,11 +193,14 @@ const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscree
                 {workscreenContext.type === WorkscreenTypes.INTERACT ? (
                     <InteractWorkscreen />
                 ) : null}
+                {workscreenContext.type === WorkscreenTypes.EMBED ? (
+                    <EmbedWorkscreen workscreenContext={workscreenContext} currentNote={currentNote}/>
+                ) : null}
                 {workscreenContext.type === WorkscreenTypes.NOTE ? (
                     <NoteWorkscreen setSync={setSync} workscreenContext={workscreenContext} currentNote={currentNote} />
                 ) : null}
             </div>
-            {workscreenContext.type === WorkscreenTypes.NOTE ? (
+            {workscreenContext.type === WorkscreenTypes.NOTE || workscreenContext.type === WorkscreenTypes.EMBED ? (
                 <ThemeProvider theme={mode ? darkTheme : lightTheme}>
                     <NoteModal open={openNoteModal} setOpen={setOpenNoteModal} initialState={ModalStates.INFO} editNoteId={currentNote?.id} />
                 </ThemeProvider>

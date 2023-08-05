@@ -37,7 +37,7 @@ const TopicListTable = ({
                         </TableRow>
                     </TableHead>
                     <TableBody className=" overflow-hidden max-h-96">
-                        {availableTopics.map((topic, i) => (
+                    {availableTopics.map((topic, i) => (
                             <TableRow
                                 key={i}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}

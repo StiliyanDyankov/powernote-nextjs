@@ -42,13 +42,23 @@ export interface Workscreen {
     id: string;
     position: PossiblePositions;
     type: WorkscreenTypes;
-    content: InteractContent | HomeContent | NoteContent;
+    content: InteractContent | HomeContent | NoteContent | EmbedContent;
 }
 
 export enum WorkscreenTypes {
     NOTE = "NOTE",
     INTERACT = "INTERACT",
     HOME = "HOME",
+    EMBED = "EMBED",
+}
+
+export enum NoteTypes {
+    EMBED = "EMBED", 
+    NOTE = "NOTE"
+}
+
+export interface EmbedContent {
+    noteId: string;
 }
 
 export enum PossiblePositions {
@@ -560,6 +570,19 @@ export const appSlice = createSlice({
                         });
                     }
                 }
+                if(action.payload.type === WorkscreenTypes.EMBED) {
+                    console.log("runs")
+                    if(action.payload.options && (action.payload.options as NoteContent).noteId) {
+                        targetTab?.workscreens.push({
+                            id: generateId(),
+                            position: placeHere,
+                            type: WorkscreenTypes.EMBED,
+                            content: {
+                                noteId: (action.payload.options as NoteContent).noteId,
+                            }
+                        });
+                    }
+                }
             }
         },
         rearangeWorkscreens: (state, action: PayloadAction<{dragEndEvent: DragEndEvent, inTabId: number}>) => {
@@ -580,7 +603,9 @@ export const appSlice = createSlice({
                     draggedWs!.position = cont;
                 }
                 console.log(action.payload);
+
             }
+            console.log("runing")
         },
         setSelectedTopicsHome: (state, action: PayloadAction<{ inTabId: number, workscreenId: string, newValue: string[] }>) => {
             const targetTab = state.tabs.find(t => t.tabId === action.payload.inTabId);
