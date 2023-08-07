@@ -236,7 +236,7 @@ const Searchbar = () => {
         <div className="w-2/5 h-fit relative z-50">
             <OutlinedInput
                 id="searchbar"
-                className="w-full z-10 bg-l-workscreen-bg dark:bg-d-500-divider"
+                className="w-full z-10 bg-l-workscreen-bg dark:bg-d-500-divider hover:bg-primary/10"
                 color="secondary"
                 placeholder="Search"
                 ref={inputRef}

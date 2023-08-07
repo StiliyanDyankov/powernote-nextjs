@@ -14,7 +14,7 @@ const TabBar = () => {
     const tabs = useSelector((state: RootState) => state.app.tabs);
 
     const handleCreateNewTab = () => {
-        const initName = "some nofnsadfjdaslfkjasldf";
+        const initName = "New Tab";
 
         dispatch(createNewTab({tabName: initName}))
     }

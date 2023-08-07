@@ -40,52 +40,25 @@ const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscree
     const syncState = useSelector((state: RootState) => state.app.flexsearchSync)
 
     useEffect(() => {
-        console.log("triggers on change of sync", currentNote)
 
         if (workscreenContext.type === WorkscreenTypes.NOTE || workscreenContext.type === WorkscreenTypes.EMBED) {
-            console.log("runs fjdhsakljadss");
             getNote();
         }
         // works
     }, [sync])
-    
-    // useEffect(()=> {
-    //     if (workscreenContext.type === WorkscreenTypes.NOTE && !syncState) {
-    //         console.log("runs fjdhsakljadss");
-    //         getNote();
-    //     }
-    // }, [syncState])
-
-    // useEffect(()=> {
-
-    // }, [])
-
+ 
 
     const getNote = async () => {
         let note = null;
         try {
-            console.log((workscreenContext.content as NoteContent).noteId);
             note = await notesDb.notes.get((workscreenContext.content as NoteContent).noteId);
             if (note) {
-                console.log("current note in get", note)
                 setCurrentNote(note)
             }
         } catch (e) {
             console.error("error")
         }
     }
-
-    // notesDb.notes.add({
-    //     id: generateId(),
-    //     noteName: 'Embeded content',
-    //     topics: [],
-    //     description: '',
-    //     createdAt: Date.now(),
-    //     lastModified: Date.now(),
-    //     content: "<div>some <strong> important </strong> content </div>",
-    //     type: NoteTypes.EMBED
-    // })
-    // end of for note ws
 
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: workscreenContext.id,
@@ -96,10 +69,6 @@ const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscree
     } : undefined;
 
     const dndContext = useDndContext();
-
-    useEffect(() => {
-        console.log(workscreenContext.position);
-    }, [])
 
     return (
         <div
@@ -119,7 +88,6 @@ const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscree
                             <Tooltip title={"Edit Note"}>
                                 <IconButton sx={{ width: "1.5rem", height: "1.5rem" }} onClick={() => {
                                     setOpenNoteModal(true);
-                                    console.log(openNoteModal, currentNote?.id);
                                 }}>
                                     <MoreVertRoundedIcon />
                                 </IconButton>
@@ -131,8 +99,8 @@ const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscree
                                 <Tooltip title={currentNote?.noteName}>
                                     <span className='cursor-default select-none'>
                                         {currentNote ?
-                                            currentNote.noteName.length > 30 ?
-                                                `${currentNote.noteName.slice(0, 14)}...`
+                                            currentNote!.noteName!.length > 30 ?
+                                                `${currentNote.noteName!.slice(0, 20)}...`
                                                 : currentNote.noteName
                                             : ""
                                         }

@@ -2,7 +2,7 @@
 
 import { RootState } from "@/utils/store";
 import { colorsTailwind } from "@/utils/themeMUI";
-import { Box, Button, Chip, Divider, FormControl, IconButton, InputLabel, MenuItem, Modal, OutlinedInput, Select, SelectChangeEvent, TextField, ThemeProvider, Tooltip, Typography, createTheme } from "@mui/material";
+import { Box, Button, Chip, CircularProgress, Divider, FormControl, IconButton, InputLabel, MenuItem, Modal, OutlinedInput, Select, SelectChangeEvent, TextField, ThemeProvider, Tooltip, Typography, createTheme } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { useEffect, useRef, useState } from "react";
@@ -14,6 +14,7 @@ import TopicSelector from "./TopicSelector";
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditNoteRoundedIcon from '@mui/icons-material/EditNoteRounded';
 import { index } from "@/pages/app";
+import { useCreateNewNoteMutation, useDeleteNoteMutation, useUpdateNoteMetadataMutation } from "@/utils/apiService";
 
 
 export enum ModalStates {
@@ -58,6 +59,15 @@ const NoteModal = (
 
     const [operationState, setOperationState] = useState<boolean>(false);
 
+
+
+    const token = useSelector((state: RootState) => state.token);
+
+    const [createNewNoteMutation, { isLoading: isCreateLoading }] = useCreateNewNoteMutation();
+    const [updateNoteMutation, { isLoading: isUpdateLoading }] = useUpdateNoteMetadataMutation();
+    const [deleteNoteMutation, { isLoading: isDeleteLoading }] = useDeleteNoteMutation();
+
+
     const getCurrentNumOfDocs = async () => {
         const numOfDocs = await notesDb.notes.count();
         setNoteName(`New Note ${numOfDocs + 1}`)
@@ -69,7 +79,6 @@ const NoteModal = (
     }
 
     useEffect(() => {
-        console.log("runs")
         getCurrentNumOfDocs();
         getAvailableTopics();
 
@@ -89,7 +98,6 @@ const NoteModal = (
 
 
     useEffect(() => {
-        console.log("fuking runs the setopenfalse", operationState, modalState, noteId)
         if (operationState && noteId && modalState === ModalStates.CREATE) {
             setOpen(false);
             if (currentWorkspace) {
@@ -112,7 +120,6 @@ const NoteModal = (
     }, [operationState]);
 
     useEffect(()=> {
-        console.log(modalState)
     },[modalState])
 
     const handleMainActionClick = () => {
@@ -131,9 +138,9 @@ const NoteModal = (
         try {
             const noteData = await notesDb.notes.get(editNoteId);
             if (noteData) {
-                setNoteName(noteData.noteName);
-                setNoteDescription(noteData.description);
-                setNoteTopics(noteData.topics);
+                setNoteName(noteData.noteName as string);
+                setNoteDescription(noteData.description as string);
+                setNoteTopics(noteData.topics as string[]);
             }
         } catch (error) {
             console.log("error with edit note", error)
@@ -153,21 +160,35 @@ const NoteModal = (
                 lastModified: Date.now(),
             })
             if (id) {
-                dispatch(setFlexsearchSyncState({
-                    syncState: false,
-                    details: {
-                        operation: NoteUnsyncOperations.UPDATE,
-                        inNoteId: editNoteId
+                await updateNoteMutation({
+                    token: token,
+                    note: {
+                        id: editNoteId,
+                        noteName: noteName,
+                        topics: noteTopics,
+                        description: noteDescription,
+                        lastModified: Date.now(),
                     }
-                }));
-                setOperationState(true);
-                const note = await notesDb.notes.get(editNoteId);
-                if(note) {
-                    index.update({
-                        id: note.id,
-                        noteName: note.noteName, 
-                    })
-                }
+                }).unwrap().then(async (res) => {
+                    dispatch(setFlexsearchSyncState({
+                        syncState: false,
+                        details: {
+                            operation: NoteUnsyncOperations.UPDATE,
+                            inNoteId: editNoteId
+                        }
+                    }));
+                    setOperationState(true);
+                    const note = await notesDb.notes.get(editNoteId);
+                    if(note) {
+                        index.update({
+                            id: note.id,
+                            noteName: note.noteName, 
+                        })
+                    }
+                }).catch((err)=> {
+                    // ?
+                })
+
             }
         } catch (error) {
             console.log("error with edit note", error)
@@ -176,8 +197,9 @@ const NoteModal = (
 
     const createNewNote = async () => {
         try {
+            const generatedId = generateId()
             const id = await notesDb.notes.add({
-                id: generateId(),
+                id: generatedId,
                 noteName: noteName,
                 topics: noteTopics,
                 description: noteDescription,
@@ -186,15 +208,31 @@ const NoteModal = (
                 content: new Delta().insert(""),
             })
             if (id) {
-                setOperationState(true);
-                setNoteId(id.toString());
-                dispatch(setFlexsearchSyncState({
-                    syncState: false,
-                    details: {
-                        operation: NoteUnsyncOperations.CREATE,
-                        inNoteId: id as string
+                // here
+                await createNewNoteMutation({
+                    token: token,
+                    note: {
+                        id: generatedId,
+                        noteName: noteName,
+                        topics: noteTopics,
+                        description: noteDescription,
+                        createdAt: Date.now(),
+                        lastModified: Date.now(),
+                        content: ""
                     }
-                }));
+                }).unwrap().then((res) => {
+                    setOperationState(true);
+                    setNoteId(id.toString());
+                    dispatch(setFlexsearchSyncState({
+                        syncState: false,
+                        details: {
+                            operation: NoteUnsyncOperations.CREATE,
+                            inNoteId: id as string
+                        }
+                    }));
+                }).catch((err)=> {
+                    // ?
+                })
             }
         } catch (error) {
             console.log("error with creating note", error)
@@ -208,15 +246,24 @@ const NoteModal = (
 
         try {
             const id = await notesDb.notes.delete(editNoteId);
-            dispatch(setFlexsearchSyncState({
-                syncState: false,
-                details: {
-                    operation: NoteUnsyncOperations.CREATE,
-                    inNoteId: editNoteId
-                }
-            }));
-            dispatch(openNoteDeleteSuccessfulModal());
-            setOpen(false);
+
+            await deleteNoteMutation({
+                noteId: editNoteId,
+                token: token,
+            }).unwrap().then((res) => {
+                dispatch(setFlexsearchSyncState({
+                    syncState: false,
+                    details: {
+                        operation: NoteUnsyncOperations.CREATE,
+                        inNoteId: editNoteId
+                    }
+                }));
+                dispatch(openNoteDeleteSuccessfulModal());
+                setOpen(false);
+            }).catch((err)=> {
+                // ?
+            })
+
 
         } catch (error) {
             console.log("error with delete note", error)
@@ -381,7 +428,16 @@ const NoteModal = (
                                         color="secondary"
                                         disableElevation
                                         onClick={handleMainActionClick}
+                                        disabled={isUpdateLoading || isCreateLoading || isDeleteLoading}
                                         autoFocus
+                                        endIcon={
+                                            isUpdateLoading || isCreateLoading || isDeleteLoading? (
+                                                <CircularProgress
+                                                    color="secondary"
+                                                    size={25}
+                                                />
+                                            ): null
+                                        }
                                     >
                                         <span
                                             style={{

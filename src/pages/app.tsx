@@ -39,12 +39,9 @@ const AppPage = () => {
 				if(!note.type || (note.type && note.type === NoteTypes.NOTE)) {
 					index.add({id:note.id, noteName: note.noteName, content: (note.content as Delta).ops[0] ? (note.content as Delta).ops[0].insert : "" });
 				}
-				console.log("time taken", Date.now()-time)
 			})
 			
 			const res = await index.search("sit", { enrich: true })
-			
-			console.log("res", res)
 		}
 
 		setStartFakeLoad(true);
@@ -55,31 +52,6 @@ const AppPage = () => {
 	}, [])
 
     useEffect(()=> {
-		// simulates loading
-
-		// dummyData.forEach((data, i) => {
-		// 	if(i<50) {
-
-		// 		notesDb.notes.add({
-		// 			id: generateId(),
-		// 			noteName: data.title,
-		// 			topics: [],
-		// 			description: "",
-		// 			createdAt: Date.now(),
-		// 			lastModified: Date.now(),
-		// 			content: new Delta().insert(data.description)
-		// 		})	
-		// 	}
-		// })
-		// notesDb.notes.add({
-		// 	noteName: "",
-		// 	topics: [],
-		// 	description: "",
-		// 	createdAt: 0,
-		// 	lastModified: 0,
-		// 	content: new Delta
-		// })
-
 		if(startFakeLoad) {
 
 			setTimeout(()=> {

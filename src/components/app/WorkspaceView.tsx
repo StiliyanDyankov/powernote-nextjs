@@ -31,9 +31,6 @@ const WorkspaceView = () => {
 
     const dndContext = useDndContext();
 
-    useEffect(() => {
-        console.log(dndContext.active !== null);
-    }, [dndContext.active])
 
     const chain = useSelector((state: RootState) => state.app.tabActivityChain)
     const currentWorkspace = useSelector((state: RootState) => state.app.tabs.find(t => t.tabId === chain[chain.length - 1]));

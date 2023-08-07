@@ -12,9 +12,6 @@ const WorkspaceDroppableArea = ({ workscreenAreas, firstWs }: { workscreenAreas:
     const currentWorkspace = useSelector((state: RootState) => state.app.tabs.find(t => t.tabId === chain[chain.length - 1]));
     // const firstWs = useSelector((state: RootState) => state.app.tabs.find(t => t.tabId === chain[chain.length - 1]))?.workscreens[0];
 
-    useEffect(()=> {
-        console.log("rerenders");
-    }, [firstWs])
 
     return (  
         <>

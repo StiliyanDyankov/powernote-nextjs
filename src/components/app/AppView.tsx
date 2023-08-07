@@ -83,36 +83,6 @@ const AppView = () => {
                         <TabBar/>
                         {/* workscreen */}
                         <WorkspaceView/>
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        
-                        {/* <h1>App Page</h1>
-                        <Button onClick={async ()=> {
-                            let time = Date.now();
-                            const db = new Dexie('myThirdDatabase') as MySubClassedDexie;
-                            db.version(2).stores({
-                                friends: '++id, name, age', // Primary key and indexed props
-                            });
-                            
-                            let arr = await db.friends.toArray()
-                            
-                            console.log("data", arr)
-                            console.log("time", Date.now() - time, "ms")
-                        }}>Load data</Button> */}
                     </div>
                 </div>
             </AppPageWrapper>

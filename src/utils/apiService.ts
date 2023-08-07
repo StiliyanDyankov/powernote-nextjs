@@ -1,9 +1,10 @@
+import { Note, Topic } from '@/utils/notesDb';
 "use client"
 
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { AuthResponse, ResCredentialError, ResCredentialSuccess } from "@/components/authPortal/RegisterSection";
 
-const server = "http://localhost:8081/api/v1/auth/";
+const server = "http://localhost:8081/api/v1/";
 
 interface Credentials {
     email: string;
@@ -17,7 +18,7 @@ export const Api = createApi({
     endpoints: (builder) => ({
         postRegisterCredentials: builder.mutation<AuthResponse, any>({
             query: (credentials) => ({
-                url: "register",
+                url: "auth/register",
                 method: "POST",
                 body: credentials,
                 headers: {
@@ -27,7 +28,7 @@ export const Api = createApi({
         }),
         postRegisterCode: builder.mutation<AuthResponse, any>({
             query: ({ code, token }) => ({
-                url: "verification/register",
+                url: "auth/verification/register",
                 method: "POST",
                 body: code,
                 headers: {
@@ -38,7 +39,7 @@ export const Api = createApi({
         }),
         postResendCode: builder.mutation<AuthResponse, any>({
             query: ({ token }) => ({
-                url: "verification/newCode",
+                url: "auth/verification/newCode",
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -48,7 +49,7 @@ export const Api = createApi({
         }),
         postLogin: builder.mutation<AuthResponse, any>({
             query: (credentials) => ({
-                url: "authenticate",
+                url: "auth/authenticate",
                 method: "POST",
                 body: credentials,
                 headers: {
@@ -58,7 +59,7 @@ export const Api = createApi({
         }),
         postForgotCode: builder.mutation<AuthResponse, any>({
             query: ({ code, token }) => ({
-                url: "verification/forgottenPassword",
+                url: "auth/verification/forgottenPassword",
                 method: "POST",
                 body: code,
                 headers: {
@@ -69,7 +70,7 @@ export const Api = createApi({
         }),
         postForgotEmailAuth: builder.mutation<AuthResponse, any>({
             query: (email) => ({
-                url: "forgottenPassword",
+                url: "auth/forgottenPassword",
                 method: "POST",
                 body: email,
                 headers: {
@@ -79,7 +80,7 @@ export const Api = createApi({
         }),
         postForgotChangePassword: builder.mutation<AuthResponse, any>({
             query: ({ password, token }) => ({
-                url: "newPassword",
+                url: "auth/newPassword",
                 method: "POST",
                 body: password,
                 headers: {
@@ -87,6 +88,83 @@ export const Api = createApi({
                     authorization: `Bearer ${token.token}`,
                 },
             }),
+        }),
+        createNewNote: builder.mutation<any, { note: Note, token: { token: string } }>({
+            query: ({note, token}) => ({
+                url: "app/note",
+                method: "POST", 
+                body: note,
+                headers: {
+                    "Content-Type": "application/json",
+                    authorization: `Bearer ${token.token}`,
+                },
+            })
+        }),
+        updateNoteMetadata: builder.mutation<any, { note: Note, token: { token: string } }>({
+            query: ({note, token}) => ({
+                url: `app/note/${note.id}?field=metadata`,
+                method: "PATCH", 
+                body: note,
+                headers: {
+                    "Content-Type": "application/json",
+                    authorization: `Bearer ${token.token}`,
+                },
+            })
+        }),
+        updateNoteContent: builder.mutation<any, { note: Note, token: { token: string } }>({
+            query: ({note, token}) => ({
+                url: `app/note/${note.id}?field=content`,
+                method: "PATCH", 
+                body: note,
+                headers: {
+                    "Content-Type": "application/json",
+                    authorization: `Bearer ${token.token}`,
+                },
+            })
+        }),
+        deleteNote: builder.mutation<any, { noteId: string, token: { token: string } }>({
+            query: ({noteId, token}) => ({
+                url: `app/note/${noteId}`,
+                method: "DELETE", 
+                body: {},
+                headers: {
+                    "Content-Type": "application/json",
+                    authorization: `Bearer ${token.token}`,
+                },
+            })
+        }),
+        deleteTopic: builder.mutation<any, { topicId: string, token: { token: string } }>({
+            query: ({topicId, token}) => ({
+                url: `app/topic/${topicId}`,
+                method: "DELETE", 
+                body: {},
+                headers: {
+                    "Content-Type": "application/json",
+                    authorization: `Bearer ${token.token}`,
+                },
+            })
+        }),
+        createNewTopic: builder.mutation<any, { topic: Topic, token: { token: string } }>({
+            query: ({topic, token}) => ({
+                url: "app/topic",
+                method: "POST", 
+                body: topic,
+                headers: {
+                    "Content-Type": "application/json",
+                    authorization: `Bearer ${token.token}`,
+                },
+            })
+        }),
+        updateTopic: builder.mutation<any, { topic: Topic, token: { token: string } }>({
+            query: ({topic, token}) => ({
+                url: "app/topic",
+                method: "PATCH", 
+                body: topic,
+                headers: {
+                    "Content-Type": "application/json",
+                    authorization: `Bearer ${token.token}`,
+                },
+            })
         }),
     }),
 });
@@ -101,4 +179,11 @@ export const {
     usePostLoginMutation,
     usePostForgotEmailAuthMutation,
     usePostForgotChangePasswordMutation,
+    useCreateNewNoteMutation,
+    useUpdateNoteMetadataMutation,
+    useCreateNewTopicMutation,
+    useUpdateTopicMutation,
+    useDeleteNoteMutation,
+    useDeleteTopicMutation,
+    useUpdateNoteContentMutation
 } = Api;

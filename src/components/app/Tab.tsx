@@ -119,7 +119,7 @@ const Tab = ({ tabPayload, id }: { tabPayload: Tab, id: number }) => {
                     >
                         {dndContext.active ? (<DroppableArea id={tabPayload.tabId} />) : (null)}
                         <p className={` cursor-default select-none dark:text-l-workspace-bg/70`} onClick={handleTabNameClick}>
-                            {tabPayload && tabPayload.tabName.length > 14 ? `${tabPayload.tabName.slice(0, 14)}...${tabPayload.tabId}` : tabPayload.tabName}
+                            {tabPayload && tabPayload.tabName.length > 14 ? `${tabPayload.tabName.slice(0, 20)}` : tabPayload.tabName}
                         </p>
                         <Popover
                             id={tabPayload.tabId.toString()}

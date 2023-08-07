@@ -28,16 +28,6 @@ const NoteListTable = ({
     const [modalOpenFor, setModalOpenFor] = useState<string | null>(null);
     const mode = useSelector((state: RootState) => state.theme.darkTheme);
 
-    // const handleNoteModalOpen = (noteId: string) => {
-    //     if (!openNoteModal) {
-    //         setOpenNoteModal(true);
-    //         setModalOpenFor(noteId);
-    //     } else {
-    //         setOpenNoteModal(false);
-    //         setModalOpenFor(null);
-    //     }
-    // }
-
     useEffect(() => {
         if (!openNoteModal) {
             setModalOpenFor(null);

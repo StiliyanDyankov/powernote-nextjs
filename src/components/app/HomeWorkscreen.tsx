@@ -75,7 +75,7 @@ const HomeWorkscreen = ({
             const { content, ...rest } = note;
             return rest
         });
-        setAvailableNotes(processedNotes);
+        setAvailableNotes(processedNotes as NoteWithoutDesc[]);
     }
 
     // dispatch(setFlexsearchSyncState({

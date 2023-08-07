@@ -5,21 +5,22 @@ import { NoteTypes } from "./storeSlices/appSlice";
 
 export interface Note {
     id?: string;
-    noteName: string;
-    topics: string[];
-    description: string;
-    createdAt: number;
-    lastModified: number;
+    noteName?: string;
+    topics?: string[];
+    description?: string;
+    createdAt?: number;
+    lastModified?: number;
     type?: NoteTypes;
-    content: Delta | string;
+    content?: Delta | string;
     from?: string;
+    delta?: Delta;
 }
 
 export interface Topic {
     id: string;
     topicName: string;
     description: string;
-    createdAt: number;
+    createdAt?: number;
     lastModified: number;
     color: string;
 }

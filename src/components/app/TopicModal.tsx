@@ -2,7 +2,7 @@
 
 import { RootState } from "@/utils/store";
 import { colorsTailwind } from "@/utils/themeMUI";
-import { Box, Button, Divider, FormControl, IconButton, InputLabel, MenuItem, Modal, Select, SelectChangeEvent, TextField, ThemeProvider, Tooltip, Typography, createTheme } from "@mui/material";
+import { Box, Button, CircularProgress, Divider, FormControl, IconButton, InputLabel, MenuItem, Modal, Select, SelectChangeEvent, TextField, ThemeProvider, Tooltip, Typography, createTheme } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { useEffect, useRef, useState } from "react";
@@ -13,6 +13,7 @@ import Delta from "quill-delta";
 import { ModalStates } from "./NoteModal";
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditNoteRoundedIcon from '@mui/icons-material/EditNoteRounded';
+import { useCreateNewTopicMutation, useDeleteTopicMutation, useUpdateTopicMutation } from "@/utils/apiService";
 
 export enum TopicColors {
     RED = "#f44336",
@@ -102,6 +103,13 @@ const TopicModal = (
 
     const [operationState, setOperationState] = useState<boolean>(false);
 
+
+    const token = useSelector((state: RootState) => state.token);
+
+    const [createNewTopicMutation, { isLoading: createIsLoading }] = useCreateNewTopicMutation();
+    const [updateTopicMutation, { isLoading: updateIsLoading }] = useUpdateTopicMutation();
+    const [deleteTopicMutation, { isLoading: deleteIsLoading }] = useDeleteTopicMutation();
+
     const getCurrentNumOfDocs = async () => {
         const numOfTopics = await notesDb.topics.count();
         setTopicName(`New Topic ${numOfTopics + 1}`)
@@ -161,7 +169,20 @@ const TopicModal = (
                 lastModified: Date.now(),
             })
             if (id) {
-                setOperationState(true);
+                await updateTopicMutation({
+                    token: token,
+                    topic: {
+                        id: editTopicId,
+                        topicName: topicName,
+                        description: topicDescription,
+                        lastModified: Date.now(),
+                        color: topicColor
+                    }
+                }).unwrap().then((res) => {
+                    setOperationState(true);
+                }).catch((err)=> {
+                    // ?
+                })
             }
         } catch (error) {
             console.log("error with edit topic", error)
@@ -170,8 +191,9 @@ const TopicModal = (
 
     const createNewTopic = async () => {
         try {
+            const generatedId = generateId();
             const id = await notesDb.topics.add({
-                id: generateId(),
+                id: generatedId,
                 topicName: topicName,
                 description: topicDescription,
                 createdAt: Date.now(),
@@ -179,7 +201,21 @@ const TopicModal = (
                 color: topicColor
             })
             if (id) {
-                setOperationState(true);
+                await createNewTopicMutation({
+                    token: token,
+                    topic: {
+                        id: generatedId,
+                        topicName: topicName,
+                        description: topicDescription,
+                        createdAt: Date.now(),
+                        lastModified: Date.now(),
+                        color: topicColor
+                    }
+                }).unwrap().then((res) => {
+                    setOperationState(true);
+                }).catch((err)=> {
+                    // ?
+                })
             }
         } catch (error) {
             console.log("error with creating topic", error)
@@ -210,17 +246,20 @@ const TopicModal = (
         try {
             await notesDb.topics.delete(editTopicId);
 
-            // const notes = await notesDb.notes.
-            // await notesDb.notes.where('topics').equals(editTopicId as string).modify(note => {
-            //     note.topics = note.topics.filter(id => id !== editTopicId);
-            // });
-
             await notesDb.notes.where('topics').notEqual([]).modify(note => {
                 note.topics = note.topics.filter(id => id !== editTopicId);
             });
 
-            dispatch(openTopicDeleteSuccessfulModal());
-            setOpen(false);
+
+            await deleteTopicMutation({
+                topicId: editTopicId,
+                token: token,
+            }).unwrap().then((res) => {
+                dispatch(openTopicDeleteSuccessfulModal());
+                setOpen(false);
+            }).catch((err)=> {
+                // ?
+            })
             
         } catch (error) {
             console.log("error with edit topic", error)
@@ -412,7 +451,16 @@ const TopicModal = (
                                         variant="contained"
                                         color="secondary"
                                         disableElevation
+                                        disabled={updateIsLoading || createIsLoading || deleteIsLoading}
                                         onClick={()=>{handleMainActionClick(); console.log("runs handler of main action in topic modal")}}
+                                        endIcon={
+                                            updateIsLoading || createIsLoading || deleteIsLoading? (
+                                                <CircularProgress
+                                                    color="secondary"
+                                                    size={25}
+                                                />
+                                            ): null
+                                        }
                                     >
                                         <span
                                             style={{

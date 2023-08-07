@@ -10,6 +10,7 @@ import Dexie, { Table } from "dexie";
 import { Note, notesDb } from "@/utils/notesDb";
 import { NoteContent, NoteUnsyncOperations, Tab, Workscreen, setFlexsearchSyncState } from "@/utils/storeSlices/appSlice";
 import { index } from "@/pages/app";
+import { useCreateNewNoteMutation, useUpdateNoteContentMutation } from "@/utils/apiService";
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
@@ -60,6 +61,9 @@ const NoteWorkscreen = ({
 
 	const [embedDone, setEmbedDone] = useState<boolean>(false)
 
+	const token = useSelector((state: RootState) => state.token);
+	const [updateNoteMutation, { isLoading: updateIsLoading }] = useUpdateNoteContentMutation();
+
 	useEffect(() => {
 		// here we write to indexeddb
 		if (value !== null) {
@@ -74,7 +78,7 @@ const NoteWorkscreen = ({
 
 				setTimeout(() => {
 					writeContents();
-				}, 3000);
+				}, 5000);
 			}
 		}
 	}, [value])
@@ -83,38 +87,36 @@ const NoteWorkscreen = ({
 		if (currentNote && value === null) {
 			setValue(currentNote.content);
 		}
-	}, [currentNote])
-
-	// useEffect(()=> {
-	// 	var htmlToInsert = "<p>here is some <strong>awesome</strong> text</p>"
-	// 	var editor = document.getElementsByClassName('ql-editor');
-	// 	var editor2 = document.querySelector('.ql-editor');
-	// 	var editor3 = document.getElementById("quill-editor");
-
-	// 	console.log(editor.namedItem("div.ql-editor"))
-	// 	console.log("QUILLLLLLLLLLLLL",editor3)
-	// 	if(editor3 && !embedDone) {
-	// 		const textEditor = editor3.lastChild?.firstChild as HTMLElement;
-	// 		const toBeInjected = document.createElement("div");
-	// 		// toBeInjected.innerHTML = htmlToInsert;
-			
-	// 		textEditor?.appendChild(toBeInjected);
-	// 		setEmbedDone(true);
-
-			
-	// 	}
-	// 	// editor[0].innerHTML = htmlToInsert
-	// },[value])
-
+	}, [currentNote]);
 
 	const writeContents = async () => {
-		console.log("runs write", currentNote)
 		if (currentNote && currentNote.id) {
 			try {
+				const note = await notesDb.notes.get(currentNote.id);
+
 				const op = await notesDb.notes.update(currentNote?.id, {
+					lastModified: Date.now(),
 					content: value2.current
 				})
+
+
+				const oldContent = new Delta().insert(note?.content?.toString() as string);
+				// (value2.current as Delta).diff(oldContent);
+
 				if (op) {
+					// await updateNoteMutation({
+					// 	token: token,
+					// 	note: {
+					// 		id: currentNote.id,
+					// 		delta: note?.content
+					// 	}
+					// }).unwrap().then((res) => {
+						
+					// }).catch((err)=> {
+					// 	// ?
+					// })
+
+
 					setSync(false)
 					inTimeoutBeforeWrite.current = false
 					dispatch(setFlexsearchSyncState({
@@ -182,7 +184,7 @@ const NoteWorkscreen = ({
 							setValue(editor.getContents());
 							value2.current = editor.getContents();
 							
-							updateLastModified();
+							// updateLastModified();
 						}}
 						modules={modules}
 						style={{
