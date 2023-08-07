@@ -144,7 +144,6 @@ const Searchbar = () => {
     useEffect(() => {
         if (notesFromDb.length !== 0) {
 
-            console.log("search res original",searchRes, displayedSearchRes);
             if (searchRes.length !== 0) {
 
                 let addedNoteIds: string[] = [];
@@ -211,9 +210,6 @@ const Searchbar = () => {
         }
     }, [searchRes])
 
-    // useLayoutEffect(()=> {
-    //     console.log("search strings",storeSearchString, searchStr.current)
-    // }, [storeSearchString])
 
     const setSearchResultsInitially = async () => {
         const res = await index.search(storeSearchString, { enrich: true })
@@ -244,9 +240,7 @@ const Searchbar = () => {
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     setResultsReady(false);
                     dispatch(inputSearchString(e.target.value));
-                    console.log("search", storeSearchString)
                     searchStr.current = e.target.value;
-                    console.log(searchStr);
                     
                     setSearchResultsInitially();
                 }}
