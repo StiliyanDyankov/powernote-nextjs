@@ -59,6 +59,17 @@ const Workscreen = ({ workscreenContext, tabId }: { workscreenContext: Workscree
             console.error("error")
         }
     }
+    // notesDb.notes.add({
+    //     id: generateId(),
+    //     noteName: 'Динко вече съжалява за...',
+    //     topics: [],
+    //     description: '',
+    //     createdAt: Date.now(),
+    //     lastModified: Date.now(),
+    //     content: "<div>some <strong> important </strong> content </div>",
+    //     type: NoteTypes.EMBED,
+    //     from: "https://www.flagman.bg/article/299740",
+    // })
 
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: workscreenContext.id,

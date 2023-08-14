@@ -327,7 +327,7 @@ const Searchbar = () => {
                                         </div>
                                         <div>
                                             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                                {(match.topics as unknown as Topic[]).map((topicId) => {
+                                                {match.topics && (match.topics as unknown as Topic[]).map((topicId) => {
                                                     const topic = availableTopics.find(t => t.id === topicId as unknown as string) as Topic;
                                                     if (topic) {
                                                         return <Chip key={topic.id} label={topic.topicName} sx={{ backgroundColor: topic.color, height: "23px", color: "black" }} />
